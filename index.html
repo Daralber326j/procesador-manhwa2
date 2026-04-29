@@ -351,19 +351,6 @@ body.modo-movil .header-movil h1{
 
 /* ===== Sidebar tipo drawer ===== */
 
-body.modo-movil .sidebar{
-    position:fixed;
-    top:0;
-    left:-260px;
-    width:240px;
-    height:100%;
-    background:#0d0d18;
-    flex-direction:column;
-    padding:20px;
-    transition:0.3s;
-    z-index:999;
-}
-
 body.modo-movil .sidebar.activo{
     left:0;
 }
@@ -601,8 +588,7 @@ function copiar(){
 
 function limpiar(){
     document.getElementById("entrada").value="";
-    document.getElementById("salida").value="";
-}
+    document.getElementById("salida").innerHTML="";}
 
 async function pegarDesdePortapapeles(){
     try{
