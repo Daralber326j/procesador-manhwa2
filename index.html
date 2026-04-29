@@ -263,6 +263,46 @@ body.modo-movil .glow-bar{
     left:0;
 }
 
+/* ===== Zoom tipo teléfono ===== */
+
+body.modo-movil{
+    overflow-y:auto;
+    touch-action:manipulation;
+}
+
+body.modo-movil .container{
+    min-height:100vh;
+}
+
+/* Escala general */
+body.modo-movil .main{
+    transform:scale(1.08);
+    transform-origin:top center;
+}
+
+/* Botones más táctiles */
+body.modo-movil .btn{
+    padding:18px 30px;
+    font-size:16px;
+}
+
+/* Botones menú más cómodos */
+body.modo-movil .menu-btn{
+    padding:18px;
+    font-size:15px;
+}
+
+/* Textarea más grande */
+body.modo-movil textarea{
+    height:260px;
+    font-size:16px;
+}
+
+/* Bordes más tipo app */
+body.modo-movil .btn,
+body.modo-movil .menu-btn{
+    border-radius:20px;
+}
 
 </style>
 </head>
@@ -325,6 +365,7 @@ body.modo-movil .glow-bar{
 
 </div>
 </div>
+
 
 <script>
 
