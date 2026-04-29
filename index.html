@@ -223,6 +223,47 @@ textarea:focus{
     box-shadow:0 0 15px #ef4444;
 }
 
+/* =========================
+   MODO MOVIL
+========================= */
+
+body.modo-movil .container{
+    flex-direction:column;
+}
+
+body.modo-movil .sidebar{
+    width:100%;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    border-right:none;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+body.modo-movil .menu-btn{
+    flex:1 1 45%;
+    margin-bottom:10px;
+}
+
+body.modo-movil .main{
+    padding:20px;
+}
+
+body.modo-movil .middle-bar{
+    flex-direction:column;
+    gap:15px;
+}
+
+body.modo-movil textarea{
+    height:200px;
+}
+
+body.modo-movil .glow-bar{
+    left:0;
+}
+
+
 </style>
 </head>
 
@@ -263,6 +304,10 @@ textarea:focus{
 <div class="main">
 
 <h1>Procesador de Manhwa</h1>
+
+<button id="modoMovilBtn" class="btn" style="margin-bottom:15px;">
+📱 Modo móvil
+</button>
 
 <div class="box">
 <textarea id="entrada" placeholder="Pega aquí el texto..."></textarea>
@@ -1074,6 +1119,15 @@ function formatearYouTube(){
         "<br><div>______________________________________</div>";
 }
 
+/* =========================
+   ACTIVAR MODO MOVIL
+========================= */
+
+window.addEventListener("DOMContentLoaded", function(){
+    document.getElementById("modoMovilBtn").onclick = function(){
+        document.body.classList.toggle("modo-movil");
+    }
+});
 
 </script>
 
