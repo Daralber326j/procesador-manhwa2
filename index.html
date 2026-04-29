@@ -227,24 +227,6 @@ textarea:focus{
    MODO MOVIL
 ========================= */
 
-body.modo-movil .container{
-    flex-direction:column;
-}
-
-body.modo-movil .sidebar{
-    width:100%;
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    justify-content:center;
-    border-right:none;
-    border-bottom:1px solid rgba(255,255,255,0.05);
-}
-
-body.modo-movil .menu-btn{
-    flex:1 1 45%;
-    margin-bottom:10px;
-}
 
 body.modo-movil .main{
     padding:20px;
@@ -274,11 +256,6 @@ body.modo-movil .container{
     min-height:100vh;
 }
 
-/* Escala general */
-body.modo-movil .main{
-    transform:scale(1.08);
-    transform-origin:top center;
-}
 
 /* Botones más táctiles */
 body.modo-movil .btn{
@@ -328,18 +305,6 @@ body.modo-movil .menu-toggle{
     display:block;
 }
 
-body.modo-movil .sidebar{
-    position:fixed;
-    top:0;
-    left:-260px;
-    height:100%;
-    width:220px;
-    background:#111;
-    z-index:1000;
-    transition:0.3s ease;
-    padding-top:60px;
-}
-
 body.modo-movil .sidebar.activo{
     left:0;
 }
@@ -347,6 +312,62 @@ body.modo-movil .sidebar.activo{
 body.modo-movil .container{
     position:relative;
 }
+
+/* ===== Header móvil estilo app ===== */
+
+.header-movil{
+    display:none;
+}
+
+body.modo-movil .header-movil{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    margin-bottom:15px;
+}
+
+body.modo-movil > .container .main > h1{
+    display:none;
+}
+
+body.modo-movil .header-movil h1{
+    font-size:20px;
+    margin:0;
+    white-space:nowrap;
+}
+
+/* ===== Sidebar tipo drawer ===== */
+
+body.modo-movil .sidebar{
+    position:fixed;
+    top:0;
+    left:-260px;
+    width:240px;
+    height:100%;
+    background:#0d0d18;
+    flex-direction:column;
+    padding:20px;
+    transition:0.3s;
+    z-index:999;
+}
+
+body.modo-movil .sidebar.activo{
+    left:0;
+}
+
+body.modo-movil .middle-bar{
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+}
+
+body.modo-movil .btn{
+    width:70%;
+    padding:14px;
+}
+
+
 
 </style>
 </head>
@@ -389,8 +410,10 @@ body.modo-movil .container{
 
 <h1>Procesador de Manhwa</h1>
 
-<div class="top-bar">
-    <button id="menuToggle" class="menu-toggle">☰</button>
+<div class="header-movil">
+    <div id="menuToggle" style="position:absolute;left:0;font-size:22px;cursor:pointer;">
+        ☰
+    </div>
     <h1>Procesador de Manhwa</h1>
 </div>
 
@@ -1215,9 +1238,19 @@ function formatearYouTube(){
 
 window.addEventListener("DOMContentLoaded", function(){
 
-    document.getElementById("modoMovilBtn").onclick = function(){
-        document.body.classList.toggle("modo-movil");
-    };
+    const btnMovil = document.getElementById("modoMovilBtn");
+
+btnMovil.onclick = function(){
+
+    document.body.classList.toggle("modo-movil");
+
+    if(document.body.classList.contains("modo-movil")){
+        btnMovil.innerHTML = "💻 Modo PC";
+    }else{
+        btnMovil.innerHTML = "📱 Modo móvil";
+    }
+
+};
 
     document.getElementById("menuToggle").onclick = function(){
         document.querySelector(".sidebar").classList.toggle("activo");
