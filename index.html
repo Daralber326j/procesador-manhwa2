@@ -226,6 +226,15 @@ textarea:focus{
     box-shadow:0 0 15px #ef4444;
 }
 
+/* Pegar siempre naranja */
+#btnPegar{
+    border:1px solid #f97316;
+}
+
+#btnPegar:hover{
+    box-shadow:0 0 15px #f97316;
+}
+
 /* =========================
    MODO MOVIL
 ========================= */
@@ -500,6 +509,9 @@ body.modo-movil .middle-bar{
 <button class="btn" id="btnProcesar" onclick="procesar()">Procesar</button>
 <button class="btn" id="btnCopiar" onclick="copiar()">Copiar resultado</button>
 <button class="btn" id="btnLimpiar" onclick="limpiar()">Limpiar</button>
+<button class="btn" id="btnPegar" onclick="pegarDesdePortapapeles()">📋 Pegar
+</button>
+
 </div>
 
 <div class="box">
@@ -590,6 +602,15 @@ function copiar(){
 function limpiar(){
     document.getElementById("entrada").value="";
     document.getElementById("salida").value="";
+}
+
+async function pegarDesdePortapapeles(){
+    try{
+        const texto = await navigator.clipboard.readText();
+        document.getElementById("entrada").value = texto;
+    }catch(err){
+        alert("No se pudo acceder al portapapeles.");
+    }
 }
 
 /* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
