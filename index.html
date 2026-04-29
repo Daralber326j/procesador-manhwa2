@@ -471,6 +471,10 @@ body.modo-movil .middle-bar{
 <i class="fa-brands fa-youtube"></i> YouTube
 </button>
 
+<button class="menu-btn" onclick="cambiarModo('intense','orange',this)">
+<i class="fa-solid fa-comments"></i> IntenseDebate comentarios
+</button>
+
 </div>
 
 <div class="main">
@@ -546,6 +550,13 @@ function setTheme(color, element){
         btn.classList.remove('active');
     });
     element.classList.add('active');
+
+if(color==="orange"){
+    root.style.setProperty('--accent','#f97316');
+    root.style.setProperty('--accent-soft','rgba(249,115,22,0.15)');
+
+}
+
 }
 
 /* ===== PROCESAR SEGÚN MODO ===== */
@@ -564,7 +575,9 @@ function procesar(){
             formatearManga();
         }else if(modoActual === "youtube"){
             formatearYouTube();
-        }
+        }else if(modoActual === "intense"){
+    formatearIntenseDebate();
+	}
 
     }, 10);
 }
@@ -1308,6 +1321,111 @@ function formatearYouTube(){
         "<div><strong>Comentarios de YouTube:</strong></div><br>" +
         salida.join("<br><br>") +
         "<br><div>______________________________________</div>";
+}
+
+/* ======================= */
+/* IntenseDebate */
+/* ======================= */
+
+
+function formatearIntenseDebate(){
+
+let texto = document.getElementById("entrada").value;
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let comentarios = [];
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = "";
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+            comentarios.push({ texto: comentarioActual.trim(), nivel: nivelFinal });
+            comentarioActual = "";
+            leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR SOLO COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    "_".repeat(c.nivel) + c.texto
+);
+
+/* 👇 SOLO ESTO 👇 */
+document.getElementById("salida").innerHTML =
+    comentariosFormateados.join("<br><br>");
+
 }
 
 /* =========================
