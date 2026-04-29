@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Procesador de Manhwa</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+/* =========================
+   VARIABLES DINÁMICAS
+========================= */
+
+:root{
+    --accent:#a855f7;
+    --accent-soft:rgba(168,85,247,0.15);
+}
+
+/* =========================
+   GENERAL
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI, sans-serif;
+}
+
+body{
+    height:100vh;
+    color:#ddd;
+    background:#0a0a0f;
+    overflow:hidden;
+    position:relative;
+}
+
+/* =========================
+   FONDO IMAGEN REAL
+========================= */
+
+.background-img{
+    position:absolute;
+    inset:0;
+    background-image:url("fondo.jpg");
+    background-size:cover;
+    background-position:center;
+    opacity:0.18;
+    z-index:-2;
+}
+
+.overlay-dark{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to right,#0a0a0f 20%,rgba(10,10,15,0.85) 60%,#0a0a0f);
+    z-index:-1;
+}
+
+/* =========================
+   FRANJA LUMINOSA CENTRAL
+========================= */
+
+.glow-bar{
+    position:absolute;
+    top:120px;
+    left:260px;
+    right:0;
+    height:3px;
+    background:linear-gradient(to right, transparent, var(--accent), transparent);
+    box-shadow:0 0 20px var(--accent);
+    transition:0.4s;
+}
+
+.glow-bar.bottom{
+    top:360px;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.container{
+    display:flex;
+    height:100vh;
+}
+
+.sidebar{
+    width:260px;
+    padding:30px 20px;
+    background:rgba(255,255,255,0.03);
+    backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar h3{
+    margin-bottom:25px;
+    color:var(--accent);
+}
+
+/* =========================
+   BOTONES MENU
+========================= */
+
+.menu-btn{
+    width:100%;
+    padding:14px;
+    margin-bottom:18px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.04);
+    color:#ddd;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    transition:0.3s;
+}
+
+.menu-btn i{
+    transition:0.3s;
+}
+
+.menu-btn.active{
+    border:1px solid var(--accent);
+    background:var(--accent-soft);
+    box-shadow:0 0 15px var(--accent);
+}
+
+.menu-btn.active i{
+    color:var(--accent);
+    text-shadow:0 0 10px var(--accent);
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+    flex:1;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+}
+
+h1{
+    color:var(--accent);
+    margin-bottom:20px;
+}
+
+/* =========================
+   CAJAS
+========================= */
+
+.box{
+    flex:1;
+    margin-bottom:20px;
+}
+
+textarea{
+    width:100%;
+    height:100%;
+    resize:none;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:20px;
+    color:#fff;
+    backdrop-filter:blur(10px);
+    transition:0.3s;
+}
+
+textarea:focus{
+    outline:none;
+    border:1px solid var(--accent);
+}
+
+/* =========================
+   BOTONES CENTRALES
+========================= */
+
+.middle-bar{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    margin:20px 0;
+}
+
+.btn{
+    padding:14px 30px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.05);
+    color:#fff;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+/* Procesar dinámico */
+#btnProcesar{
+    border:1px solid var(--accent);
+}
+
+#btnProcesar:hover{
+    box-shadow:0 0 15px var(--accent);
+}
+
+/* Copiar siempre azul */
+#btnCopiar{
+    border:1px solid #3b82f6;
+}
+
+#btnCopiar:hover{
+    box-shadow:0 0 15px #3b82f6;
+}
+
+/* Limpiar siempre rojo */
+#btnLimpiar{
+    border:1px solid #ef4444;
+}
+
+#btnLimpiar:hover{
+    box-shadow:0 0 15px #ef4444;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="background-img"></div>
+<div class="overlay-dark"></div>
+
+<div class="glow-bar"></div>
+<div class="glow-bar bottom"></div>
+
+<div class="container">
+
+<div class="sidebar">
+<h3>FUENTES</h3>
+
+<button class="menu-btn active" onclick="cambiarModo('hot','purple',this)">
+<i class="fa-solid fa-fire"></i> Manhwas Hot
+</button>
+
+
+<button class="menu-btn" onclick="cambiarModo('normal','green',this)">
+<i class="fa-solid fa-book-open"></i> Manhwas normales
+</button>
+
+
+<button class="menu-btn" onclick="cambiarModo('manga','blue',this)">
+<i class="fa-solid fa-mask"></i> Mangas
+</button>
+
+
+<button class="menu-btn" onclick="cambiarModo('youtube','red',this)">
+<i class="fa-brands fa-youtube"></i> YouTube
+</button>
+
+</div>
+
+<div class="main">
+
+<h1>Procesador de Manhwa</h1>
+
+<div class="box">
+<textarea id="entrada" placeholder="Pega aquí el texto..."></textarea>
+</div>
+
+<div class="middle-bar">
+<button class="btn" id="btnProcesar" onclick="procesar()">Procesar</button>
+<button class="btn" id="btnCopiar" onclick="copiar()">Copiar resultado</button>
+<button class="btn" id="btnLimpiar" onclick="limpiar()">Limpiar</button>
+</div>
+
+<div class="box">
+<div id="salida" class="salida-html"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+
+
+let modoActual = "hot";
+
+/* ===== CAMBIO DE MODO + COLOR ===== */
+function cambiarModo(modo, color, element){
+    modoActual = modo;
+    setTheme(color, element);
+}
+
+/* ===== TEMA VISUAL ===== */
+function setTheme(color, element){
+
+    let root = document.documentElement;
+
+    if(color==="purple"){
+        root.style.setProperty('--accent','#a855f7');
+        root.style.setProperty('--accent-soft','rgba(168,85,247,0.15)');
+    }
+    if(color==="green"){
+        root.style.setProperty('--accent','#22c55e');
+        root.style.setProperty('--accent-soft','rgba(34,197,94,0.15)');
+    }
+    if(color==="blue"){
+        root.style.setProperty('--accent','#3b82f6');
+        root.style.setProperty('--accent-soft','rgba(59,130,246,0.15)');
+    }
+    if(color==="red"){
+        root.style.setProperty('--accent','#ef4444');
+        root.style.setProperty('--accent-soft','rgba(239,68,68,0.15)');
+    }
+
+    document.querySelectorAll('.menu-btn').forEach(btn=>{
+        btn.classList.remove('active');
+    });
+    element.classList.add('active');
+}
+
+/* ===== PROCESAR SEGÚN MODO ===== */
+function procesar(){
+    // Muestra algo mientras procesa (opcional)
+    document.getElementById("salida").innerHTML = "⏳ Procesando...";
+
+    // Le damos un respiro al navegador
+    setTimeout(() => {
+
+        if(modoActual === "hot"){
+            formatear();
+        }else if(modoActual === "normal"){
+            formatearNormal();
+        }else if(modoActual === "manga"){
+            formatearManga();
+        }else if(modoActual === "youtube"){
+            formatearYouTube();
+        }
+
+    }, 10);
+}
+
+
+/* ===== COPIAR / LIMPIAR ===== */
+function copiar(){
+    const salida = document.getElementById("salida");
+
+    const range = document.createRange();
+    range.selectNodeContents(salida);
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    document.execCommand("copy");
+    selection.removeAllRanges();
+}
+
+
+function limpiar(){
+    document.getElementById("entrada").value="";
+    document.getElementById("salida").value="";
+}
+
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* formatear() */
+/* formatearNormal() */
+/* formatearManga() */
+/* formatearYouTube() */
+
+
+
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+
+function formatear(){
+
+let texto = document.getElementById("entrada").value;
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let titulo = lineasLimpias[0];
+let sinopsis = "";
+let estado = "";
+let capitulos = 0;
+let comentarios = [];
+
+// ✅ USUARIOS CUYO NOMBRE SE MOSTRARÁ ARRIBA DEL COMENTARIO
+
+let usuariosVisibles = [
+    "mattuu_arg",
+    "NariGod's"
+];
+
+
+/* ======================= */
+/* SINOPSIS */
+/* ======================= */
+
+let finSinopsis = lineasLimpias.findIndex(l => l.toLowerCase() === "géneros");
+if(finSinopsis !== -1){
+    sinopsis = lineas.slice(1, finSinopsis).join("\n");
+}
+
+/* ======================= */
+/* ESTADO */
+/* ======================= */
+
+let estadoIndex = lineasLimpias.findIndex(l => l.toLowerCase() === "estado");
+if(estadoIndex !== -1){
+    estado = lineasLimpias[estadoIndex + 1];
+}
+
+/* ======================= */
+/* CAPÍTULOS (ROBUSTO) */
+/* ======================= */
+
+let matchTotalCaps = texto.match(/\(\s*(\d+)\s*capitulos?\s*\)/i);
+if(matchTotalCaps){
+    capitulos = parseInt(matchTotalCaps[1], 10);
+}else{
+    capitulos = lineasLimpias.filter(l =>
+        l.toLowerCase().includes("capitulo")
+    ).length;
+}
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = "";
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+            comentarios.push({ texto: comentarioActual.trim(), nivel: nivelFinal });
+            comentarioActual = "";
+            leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    "_".repeat(c.nivel) + c.texto
+);
+
+/* ======================= */
+/* ANALISIS NTR (CORREGIDO) */
+/* ======================= */
+
+let textoComentarios = comentarios.map(c => c.texto.toLowerCase()).join(" ");
+
+let mencionaNTR = textoComentarios.includes("ntr");
+let mencionaNetori = textoComentarios.includes("netori");
+let aclaraNoNTR =
+    textoComentarios.includes("eso no es ntr") ||
+    textoComentarios.includes("no es ntr") ||
+    textoComentarios.includes("no es ntr hacia el prota");
+
+let ntrAlProta =
+    textoComentarios.includes("netorare") ||
+    textoComentarios.includes("engañan al prota") ||
+    textoComentarios.includes("le ponen los cuernos");
+
+let resumenNTR = "";
+
+if(mencionaNetori || (mencionaNTR && aclaraNoNTR && !ntrAlProta)){
+    resumenNTR = "Según los comentarios, hay Netori (el prota es quien engaña), no NTR hacia él.";
+}
+else if(ntrAlProta){
+    resumenNTR = "Según los comentarios, hay NTR clásico (Netorare) hacia el prota.";
+}
+else if(mencionaNTR && !aclaraNoNTR){
+    resumenNTR = "Se menciona NTR de forma ambigua. Se recomienda revisión.";
+}
+else{
+    resumenNTR = "Según los comentarios, no parece haber NTR relevante.";
+}
+
+/* ======================= */
+/* GENERAR RESULTADO */
+/* ======================= */
+
+let resultado = "";
+
+resultado += "<div>🟪🟪🟪🟪</div><br>";
+
+resultado += "<div style='font-size:27px;font-weight:bold;'>" + titulo + "</div><br>";
+
+resultado += "<div>(--)</div><br>";
+resultado += "<div>(Manhwa)</div><br>";
+
+resultado += "<div>Lo encontré buscando</div>";
+resultado += "<div>Regresiones y fantasía medieval</div><br>";
+
+resultado += "<div><strong>Sipnosis:</strong></div>";
+resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
+
+resultado += "<div><strong>Leer aquí:</strong></div><br>";
+
+resultado += "<div><strong>Comentarios:</strong></div><br>";
+resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+
+if(estado && estado.toLowerCase() === "finalizado"){
+
+    let resumenFinal = "🟨 Esta finalizado";
+
+    let finalFeliz =
+        textoComentarios.includes("obra maestra") ||
+        textoComentarios.includes("final muy bueno") ||
+        textoComentarios.includes("final excelente") ||
+        textoComentarios.includes("final bastante bueno") ||
+        textoComentarios.includes("muy recomendable") ||
+        textoComentarios.includes("termina muy bien");
+
+    let noHarem =
+        textoComentarios.includes("no termina en harem") ||
+        textoComentarios.includes("no es harem") ||
+        textoComentarios.includes("se queda con una");
+
+    let parejaFinal = "";
+
+    if(textoComentarios.includes("termina con la de pelo")){
+        let match = textoComentarios.match(/termina con la de pelo [^.,\n]*/);
+        if(match){
+            parejaFinal = " con " + match[0].replace("termina con la ", "");
+        }
+    }
+    else if(
+        textoComentarios.includes("termina con la fl") ||
+        textoComentarios.includes("se queda con la fl")
+    ){
+        parejaFinal = " con la FL";
+    }
+
+    if(noHarem){
+        resumenFinal += ", aunque no termina en harem";
+    }
+
+    if(finalFeliz){
+        resumenFinal += ", termina en un final feliz para el prota";
+    }
+
+    if(parejaFinal !== ""){
+        resumenFinal += parejaFinal;
+    }
+
+    resumenFinal += " ( " + capitulos + " capitulos )";
+
+    resultado += "<div><strong>" + resumenFinal + "</strong></div><br>";
+
+}else{
+    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+}
+
+resultado += "<div><strong>❕No tiene NTR</strong></div>";
+resultado += "<div>" + resumenNTR + "</div><br>";
+resultado += "<div>______________________________________</div>";
+
+document.getElementById("salida").innerHTML = resultado;
+}
+
+/* ======================= */
+/* Manhwas Normales */
+/* ======================= */
+
+function formatearNormal(){
+
+let texto = document.getElementById("entrada").value;
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let titulo = lineasLimpias[0];
+let sinopsis = "";
+let estado = "";
+let capitulos = 0;
+let comentarios = [];
+
+/* ======= RECICLADO: SINOPSIS ======= */
+let finSinopsis = lineasLimpias.findIndex(l => l.toLowerCase() === "géneros");
+if(finSinopsis !== -1){
+    sinopsis = lineas.slice(1, finSinopsis).join("\n");
+}
+
+/* ======= RECICLADO: ESTADO ======= */
+let estadoIndex = lineasLimpias.findIndex(l => l.toLowerCase() === "estado");
+if(estadoIndex !== -1){
+    estado = lineasLimpias[estadoIndex + 1];
+}
+
+/* ======= RECICLADO: CAPÍTULOS ======= */
+let matchTotalCaps = texto.match(/\(\s*(\d+)\s*capitulos?\s*\)/i);
+if(matchTotalCaps){
+    capitulos = parseInt(matchTotalCaps[1], 10);
+}else{
+    capitulos = lineasLimpias.filter(l =>
+        l.toLowerCase().includes("capitulo")
+    ).length;
+}
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = "";
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+            comentarios.push({ texto: comentarioActual.trim(), nivel: nivelFinal });
+            comentarioActual = "";
+            leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    "_".repeat(c.nivel) + c.texto
+)
+
+/* ======= DETECCIÓN SIMPLE ======= */
+let textoComentarios = comentarios.join(" ").toLowerCase();
+
+let tieneNTR =
+    textoComentarios.includes("ntr") ||
+    textoComentarios.includes("engaña") ||
+    textoComentarios.includes("infiel") ||
+    textoComentarios.includes("le fue infiel");
+
+let haySpoiler =
+    textoComentarios.includes("muere") ||
+    textoComentarios.includes("muerto") ||
+    textoComentarios.includes("final de la novela") ||
+    textoComentarios.includes("en la novela");
+
+/* ======= GENERAR RESULTADO NORMAL ======= */
+let resultado = "";
+
+resultado += "<div style='font-size:27px;font-weight:bold;'>" + titulo + "</div><br>";
+resultado += "<div><strong>Sipnosis:</strong></div>";
+resultado += "<div>" + sinopsis.replace(/\n/g,"<br>") + "</div><br>";
+
+resultado += "<div><strong>Comentarios:</strong></div><br>";
+resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+
+if(estado && estado.toLowerCase() === "finalizado"){
+    resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
+}else{
+    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+}
+
+if(haySpoiler){
+    resultado += "<div><strong>Spoiler:</strong> Se mencionan eventos importantes.</div><br>";
+}
+
+if(tieneNTR){
+    resultado += "<div><strong>❗️Tiene NTR</strong></div>";
+}else{
+    resultado += "<div><strong>❕No tiene NTR</strong></div>";
+}
+
+resultado += "<div>______________________________________</div>";
+
+document.getElementById("salida").className = "salida-normal";
+document.getElementById("salida").innerHTML = resultado;
+}
+
+
+/* ======================= */
+/* Mangas */
+/* ======================= */
+
+
+function formatearManga(){
+
+
+let texto = document.getElementById("entrada").value;
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let titulo = lineasLimpias[0];
+let sinopsis = "";
+let estado = "";
+let capitulos = 0;
+let comentarios = [];
+
+
+/* ======= RECICLADO ======= */
+let finSinopsis = lineasLimpias.findIndex(l => l.toLowerCase() === "géneros");
+if(finSinopsis !== -1){
+    sinopsis = lineas.slice(1, finSinopsis).join("\n");
+}
+
+
+/* ======================= */
+/* ESTADO */
+/* ======================= */
+
+let estadoIndex = lineasLimpias.findIndex(l => l.toLowerCase() === "estado");
+if(estadoIndex !== -1){
+    estado = lineasLimpias[estadoIndex + 1];
+}
+
+/* ======================= */
+/* CAPÍTULOS (ROBUSTO) */
+/* ======================= */
+
+let matchTotalCaps = texto.match(/\(\s*(\d+)\s*capitulos?\s*\)/i);
+if(matchTotalCaps){
+    capitulos = parseInt(matchTotalCaps[1], 10);
+}else{
+    capitulos = lineasLimpias.filter(l =>
+        l.toLowerCase().includes("capitulo")
+    ).length;
+}
+
+
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = "";
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+            comentarios.push({ texto: comentarioActual.trim(), nivel: nivelFinal });
+            comentarioActual = "";
+            leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    "_".repeat(c.nivel) + c.texto
+)
+
+
+/* ======= RESULTADO ======= */
+let resultado = "";
+
+resultado += "<div style='font-size:27px;font-weight:bold;'>" + titulo + "</div><br>";
+
+resultado += "<div>Título de video:</div><br>";
+resultado += "<div>Video:</div><br>";
+resultado += "<div>Canal:</div><br>";
+resultado += "<div>Leer aquí:</div><br><br>";
+
+resultado += "<div><strong>Sipnosis:</strong></div>";
+resultado += "<div>" + sinopsis.replace(/\n/g,"<br>") + "</div><br>";
+
+resultado += "<div><strong>Comentarios:</strong></div><br>";
+resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+
+if(estado && estado.toLowerCase() === "finalizado"){
+    resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
+}else{
+    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+}
+
+resultado += "<div>______________________________________</div>";
+
+document.getElementById("salida").className = "salida-manga";
+document.getElementById("salida").innerHTML = resultado;
+}
+
+
+/* ======================= */
+/* YouTube */
+/* ====================== */
+
+function formatearYouTube(){
+    const texto = document.getElementById("entrada").value;
+
+    const lineas = texto
+        .replace(/&nbsp;|&amp;nbsp;/g, " ")
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l !== "");
+
+    const palabrasTiempo = [
+        "segundo","segundos","minuto","minutos","hora","horas",
+        "día","días","semana","semanas","mes","meses","año","años",
+        "second","seconds","minute","minutes","hour","hours",
+        "day","days","week","weeks","month","months","year","years",
+        "ago","hace","editado"
+    ];
+
+    const esFecha = l =>
+        palabrasTiempo.some(p => l.toLowerCase().includes(p));
+
+    const esNumeroAislado = l => /^[0-9]+$/.test(l);
+
+    // ===== 1. EXTRAER BLOQUES =====
+    let bloques = [];
+    let i = 0;
+
+    while(i < lineas.length){
+
+        // @usuario
+        if(lineas[i].startsWith("@")) i++;
+
+        // fecha
+        if(i < lineas.length && esFecha(lineas[i])) i++;
+
+        let textoComentario = [];
+
+        while(
+            i < lineas.length &&
+            !esNumeroAislado(lineas[i]) &&
+            lineas[i].toLowerCase() !== "responder"
+        ){
+            textoComentario.push(lineas[i]);
+            i++;
+        }
+
+        // saltar likes + responder
+        if(esNumeroAislado(lineas[i]) && lineas[i+1]?.toLowerCase() === "responder"){
+            i += 2;
+        }else if(lineas[i]?.toLowerCase() === "responder"){
+            i++;
+        }
+
+        bloques.push(textoComentario.join(" "));
+    }
+
+    // ===== 2. CLASIFICAR BASE / RESPUESTAS =====
+    let resultado = [];
+    let idx = 0;
+
+    while(idx < bloques.length){
+
+        const base = bloques[idx];
+        let respuestas = [];
+
+        // mirar si MÁS ADELANTE hay "Ocultar respuestas"
+        let hayOcultar = lineas.slice(idx).some(l => l.toLowerCase() === "ocultar respuestas");
+
+        if(hayOcultar){
+            let j = idx + 1;
+            while(
+                j < bloques.length &&
+                lineas.slice(j).some(l => l.toLowerCase() !== "ocultar respuestas")
+            ){
+                respuestas.push(bloques[j]);
+                j++;
+            }
+            idx = j + 1;
+        }else{
+            idx++;
+        }
+
+        resultado.push({ base, respuestas });
+    }
+
+    // ===== 3. FORMATO FINAL =====
+    let salida = [];
+
+    resultado.forEach(grupo => {
+        salida.push("_ " + grupo.base);
+        let nivel = 2;
+        grupo.respuestas.forEach(r => {
+            salida.push("_".repeat(nivel) + " " + r);
+            nivel += 2;
+        });
+    });
+
+    document.getElementById("salida").innerHTML =
+        "<div><strong>Comentarios de YouTube:</strong></div><br>" +
+        salida.join("<br><br>") +
+        "<br><div>______________________________________</div>";
+}
+
+
+</script>
+
+</body>
+</html>
