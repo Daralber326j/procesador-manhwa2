@@ -304,6 +304,50 @@ body.modo-movil .menu-btn{
     border-radius:20px;
 }
 
+/* =========================
+   SIDEBAR DESLIZABLE MOVIL
+========================= */
+
+.top-bar{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.menu-toggle{
+    display:none;
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:22px;
+    cursor:pointer;
+}
+
+/* En modo móvil */
+body.modo-movil .menu-toggle{
+    display:block;
+}
+
+body.modo-movil .sidebar{
+    position:fixed;
+    top:0;
+    left:-260px;
+    height:100%;
+    width:220px;
+    background:#111;
+    z-index:1000;
+    transition:0.3s ease;
+    padding-top:60px;
+}
+
+body.modo-movil .sidebar.activo{
+    left:0;
+}
+
+body.modo-movil .container{
+    position:relative;
+}
+
 </style>
 </head>
 
@@ -344,6 +388,11 @@ body.modo-movil .menu-btn{
 <div class="main">
 
 <h1>Procesador de Manhwa</h1>
+
+<div class="top-bar">
+    <button id="menuToggle" class="menu-toggle">☰</button>
+    <h1>Procesador de Manhwa</h1>
+</div>
 
 <button id="modoMovilBtn" class="btn" style="margin-bottom:15px;">
 📱 Modo móvil
@@ -1165,9 +1214,15 @@ function formatearYouTube(){
 ========================= */
 
 window.addEventListener("DOMContentLoaded", function(){
+
     document.getElementById("modoMovilBtn").onclick = function(){
         document.body.classList.toggle("modo-movil");
-    }
+    };
+
+    document.getElementById("menuToggle").onclick = function(){
+        document.querySelector(".sidebar").classList.toggle("activo");
+    };
+
 });
 
 </script>
