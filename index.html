@@ -91,7 +91,7 @@ body{
 
 .container{
     display:flex;
-    height:100vh;
+    min-height:100vh;
 }
 
 .sidebar{
@@ -506,12 +506,12 @@ body.modo-movil .panel-avanzado{
 
 body.modo-movil #menuToggle{
 
-    position:absolute;
+    position:fixed;
 
     left:16px;
     top:20px;
 
-    z-index:99999;
+    z-index:900;
 
     width:58px;
     height:58px;
