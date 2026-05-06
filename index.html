@@ -505,34 +505,48 @@ body.modo-movil .panel-avanzado{
 }
 
 body.modo-movil #menuToggle{
+
     position:fixed;
 
-    left:14px;
-    bottom:18px;
+    left:16px;
+    bottom:20px;
 
-    z-index:1200;
+    z-index:99999;
 
-    font-size:30px;
-
-    width:56px;
-    height:56px;
+    width:58px;
+    height:58px;
 
     display:flex;
     align-items:center;
     justify-content:center;
 
+    font-size:32px;
+    line-height:1;
+
+    color:white;
+
     border-radius:50%;
 
-    background:rgba(15,15,25,0.78);
+    background:rgba(15,15,25,0.82);
 
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
 
-    border:1px solid rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.10);
 
-    box-shadow:0 0 18px rgba(0,0,0,0.45);
+    box-shadow:
+        0 0 20px rgba(0,0,0,0.45),
+        0 0 10px rgba(255,255,255,0.04);
 
-    transition:0.3s;
+    cursor:pointer;
+
+    transition:
+        transform 0.15s,
+        background 0.25s;
+}
+
+body.modo-movil #menuToggle:active{
+    transform:scale(0.92);
 }
 
 /* Hover / toque */
@@ -750,9 +764,9 @@ body.avanzado-activo h1{
 <h1>Procesador de Manhwa</h1>
 
 <div class="header-movil">
-    <div id="menuToggle" style="position:absolute;left:0;font-size:22px;cursor:pointer;">
-        ☰
-    </div>
+    <div id="menuToggle">
+    ☰
+   </div>
     <h1>Procesador de Manhwa</h1>
 </div>
 
