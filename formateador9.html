@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Procesador de Manhwa</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+/* =========================
+   VARIABLES DINÁMICAS
+========================= */
+
+:root{
+    --accent:#a855f7;
+    --accent-soft:rgba(168,85,247,0.15);
+}
+
+/* =========================
+   GENERAL
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI, sans-serif;
+}
+
+body{
+    height:100vh;
+    color:#ddd;
+    background:#0a0a0f;
+    overflow:auto;
+    position:relative;
+}
+
+#salida{
+    max-height:100%;
+    overflow-y:auto;
+    padding:20px;
+}
+
+/* =========================
+   FONDO IMAGEN REAL
+========================= */
+
+.background-img{
+    position:absolute;
+    inset:0;
+    background-image:url("fondo.jpg");
+    background-size:cover;
+    background-position:center;
+    opacity:0.18;
+    z-index:-2;
+}
+
+.overlay-dark{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to right,#0a0a0f 20%,rgba(10,10,15,0.85) 60%,#0a0a0f);
+    z-index:-1;
+}
+
+/* =========================
+   FRANJA LUMINOSA CENTRAL
+========================= */
+
+.glow-bar{
+    position:absolute;
+    top:120px;
+    left:260px;
+    right:0;
+    height:3px;
+    background:linear-gradient(to right, transparent, var(--accent), transparent);
+    box-shadow:0 0 20px var(--accent);
+    transition:0.4s;
+}
+
+.glow-bar.bottom{
+    top:360px;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.container{
+    display:flex;
+    height:100vh;
+}
+
+.sidebar{
+    width:260px;
+    padding:30px 20px;
+    background:rgba(255,255,255,0.03);
+    backdrop-filter:blur(14px);
+    border-right:1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar h3{
+    margin-bottom:25px;
+    color:var(--accent);
+}
+
+/* =========================
+   BOTONES MENU
+========================= */
+
+.menu-btn{
+    width:100%;
+    padding:14px;
+    margin-bottom:18px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.04);
+    color:#ddd;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    transition:0.3s;
+}
+
+.menu-btn i{
+    transition:0.3s;
+}
+
+.menu-btn.active{
+    border:1px solid var(--accent);
+    background:var(--accent-soft);
+    box-shadow:0 0 15px var(--accent);
+}
+
+.menu-btn.active i{
+    color:var(--accent);
+    text-shadow:0 0 15px var(--accent);
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+    flex:1;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+}
+
+h1{
+    color:var(--accent);
+    margin-bottom:20px;
+}
+
+/* =========================
+   CAJAS
+========================= */
+
+.box{
+    flex:1;
+    margin-bottom:20px;
+}
+
+textarea{
+    width:100%;
+    height:100%;
+    resize:none;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:20px;
+    color:#fff;
+    backdrop-filter:blur(10px);
+    transition:0.3s;
+}
+
+textarea:focus{
+    outline:none;
+    border:1px solid var(--accent);
+}
+
+/* =========================
+   BOTONES CENTRALES
+========================= */
+
+.middle-bar{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    margin:20px 0;
+}
+
+.btn{
+    padding:14px 30px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.05);
+    color:#fff;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+/* Procesar dinámico */
+#btnProcesar{
+    border:1px solid var(--accent);
+}
+
+#btnProcesar:hover{
+    box-shadow:0 0 15px var(--accent);
+}
+
+/* Copiar siempre azul */
+#btnCopiar{
+    border:1px solid #3b82f6;
+}
+
+#btnCopiar:hover{
+    box-shadow:0 0 15px #3b82f6;
+}
+
+/* Limpiar siempre rojo */
+#btnLimpiar{
+    border:1px solid #ef4444;
+}
+
+#btnLimpiar:hover{
+    box-shadow:0 0 15px #ef4444;
+}
+
+/* Pegar siempre naranja */
+#btnPegar{
+    border:1px solid #f97316;
+}
+
+#btnPegar:hover{
+    box-shadow:0 0 15px #f97316;
+}
+
+/* =========================
+   MODO MOVIL
+========================= */
+
+
+body.modo-movil .main{
+    padding:20px;
+}
+
+body.modo-movil .middle-bar{
+    flex-direction:column;
+    gap:15px;
+}
+
+body.modo-movil textarea{
+    height:200px;
+}
+
+body.modo-movil .glow-bar{
+    left:0;
+}
+
+/* ===== Zoom tipo teléfono ===== */
+
+body.modo-movil{
+    overflow-y:auto;
+    touch-action:manipulation;
+}
+
+body.modo-movil .container{
+    min-height:100vh;
+}
+
+
+/* Botones más táctiles */
+body.modo-movil .btn{
+    padding:18px 30px;
+    font-size:16px;
+}
+
+/* Botones menú más cómodos */
+body.modo-movil .menu-btn{
+    padding:18px;
+    font-size:15px;
+}
+
+/* Textarea más grande */
+body.modo-movil textarea{
+    height:260px;
+    font-size:16px;
+}
+
+/* Bordes más tipo app */
+body.modo-movil .btn,
+body.modo-movil .menu-btn{
+    border-radius:20px;
+}
+
+/* =========================
+   SIDEBAR DESLIZABLE MOVIL
+========================= */
+
+.top-bar{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.menu-toggle{
+    display:none;
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:22px;
+    cursor:pointer;
+}
+
+/* En modo móvil */
+body.modo-movil .menu-toggle{
+    display:block;
+}
+
+body.modo-movil .sidebar.activo{
+    left:0;
+}
+
+body.modo-movil .container{
+    position:relative;
+}
+
+/* ===== Header móvil estilo app ===== */
+
+.header-movil{
+    display:none;
+}
+
+body.modo-movil .header-movil{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    margin-bottom:15px;
+}
+
+body.modo-movil > .container .main > h1{
+    display:none;
+}
+
+body.modo-movil .header-movil h1{
+    font-size:20px;
+    margin:0;
+    white-space:nowrap;
+}
+
+/* ===== Sidebar tipo drawer ===== */
+
+body.modo-movil .sidebar.activo{
+    left:0;
+}
+
+body.modo-movil .middle-bar{
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+}
+
+body.modo-movil .btn{
+    width:70%;
+    padding:14px;
+}
+
+/* =========================
+   AJUSTE REAL APP MOVIL
+========================= */
+
+body.modo-movil{
+    overflow-y:auto;
+}
+
+/* Sidebar más grande tipo app */
+
+body.modo-movil .sidebar{
+    position:fixed;
+    top:0;
+    left:-280px;
+    width:280px;
+    height:100%;
+    background:#0d0d18;
+    padding:30px 20px;
+    transition:0.3s;
+    z-index:998; /* menor que el botón */
+}
+
+/* =========================
+   PANEL AVANZADO RESPONSIVE
+========================= */
+
+body.modo-movil .panel-avanzado{
+    width:85%;
+    max-width:380px;
+
+    right:-90%;
+
+    padding:20px;
+
+    z-index:1000;
+
+    border-left:2px solid var(--accent);
+
+    box-shadow:-10px 0 25px rgba(0,0,0,0.45);
+
+    background:rgba(10,10,20,0.72);
+
+    backdrop-filter:blur(18px);
+
+    -webkit-backdrop-filter:blur(18px);
+}
+
+/* ===== PANEL CASI TRANSPARENTE ===== */
+
+body.modo-movil .panel-avanzado.ver-fondo{
+    background:rgba(10,10,20,0.12) !important;
+
+    backdrop-filter:blur(3px);
+
+    -webkit-backdrop-filter:blur(3px);
+
+    border-left:2px solid rgba(255,255,255,0.15);
+}
+
+/* Inputs */
+body.modo-movil .panel-avanzado.ver-fondo input[type="text"]{
+    background:rgba(255,255,255,0.05) !important;
+    border-color:rgba(255,255,255,0.08) !important;
+    color:rgba(255,255,255,0.45) !important;
+}
+
+/* Labels */
+body.modo-movil .panel-avanzado.ver-fondo label{
+    color:rgba(255,255,255,0.45);
+}
+
+/* Títulos */
+body.modo-movil .panel-avanzado.ver-fondo h3,
+body.modo-movil .panel-avanzado.ver-fondo h4{
+    color:rgba(255,255,255,0.45);
+}
+
+/* Líneas */
+body.modo-movil .panel-avanzado.ver-fondo hr{
+    opacity:0.15;
+}
+
+/* Botones */
+body.modo-movil .panel-avanzado.ver-fondo .btn{
+    opacity:0.25;
+}
+
+/* Checkbox */
+body.modo-movil .panel-avanzado.ver-fondo input[type="checkbox"]{
+    opacity:0.3;
+}
+
+/* Botón cerrar */
+body.modo-movil .panel-avanzado.ver-fondo #cerrarPanelAvanzado{
+    opacity:0.3;
+}
+
+
+
+body.modo-movil .panel-avanzado.activo{
+    right:0;
+}
+
+/* Títulos */
+body.modo-movil .panel-avanzado h3{
+    font-size:24px;
+}
+
+body.modo-movil .panel-avanzado h4{
+    font-size:20px;
+    margin-top:20px;
+}
+
+/* Checkboxes */
+body.modo-movil .panel-avanzado label{
+    font-size:17px;
+    margin-bottom:16px;
+}
+
+/* Inputs */
+body.modo-movil .panel-avanzado input[type="text"]{
+    font-size:17px;
+    padding:14px;
+    border-radius:12px;
+}
+
+/* Scroll más cómodo */
+body.modo-movil .panel-avanzado{
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+}
+
+body.modo-movil #menuToggle{
+    position:fixed;
+    left:18px;
+    top:10px;              /* más arriba */
+    z-index:999;
+    font-size:32px;        /* más grande */
+    padding:10px;          /* área táctil más grande */
+}
+
+body.modo-movil .sidebar.activo{
+    left:0;
+}
+
+/* Texto sidebar más grande */
+body.modo-movil .menu-btn{
+    font-size:17px;
+    padding:16px;
+}
+
+/* Header más grande */
+body.modo-movil .header-movil h1{
+    font-size:22px;
+}
+
+/* Ícono ☰ más grande */
+body.modo-movil #menuToggle{
+    font-size:26px;
+}
+
+/* Textarea más alto */
+body.modo-movil textarea{
+    height:350px;
+    font-size:17px;
+}
+
+/* Botones tipo app */
+body.modo-movil .btn{
+    width:85%;
+    font-size:17px;
+    padding:16px;
+}
+
+/* Separación natural */
+body.modo-movil .middle-bar{
+    margin-top:25px;
+}
+
+/* =========================
+   PANEL AVANZADO
+========================= */
+
+.panel-avanzado{
+    position:fixed;
+    right:-400px;
+    top:0;
+    width:350px;
+    height:100%;
+    background:#111827;
+    padding:25px;
+    transition:0.4s;
+    z-index:999;
+    overflow-y:auto;
+    border-left:2px solid var(--accent);
+}
+
+.panel-avanzado.activo{
+    right:0;
+}
+
+.panel-avanzado h3{
+    margin-bottom:20px;
+    color:var(--accent);
+}
+
+.panel-avanzado label{
+    display:block;
+    margin-bottom:10px;
+    font-size:14px;
+}
+
+.panel-avanzado input[type="text"]{
+    width:100%;
+    padding:8px;
+    margin-bottom:12px;
+    background:#1f2937;
+    border:1px solid #333;
+    color:#fff;
+    border-radius:6px;
+}
+
+/* =========================
+   BOTÓN MODO AVANZADO
+========================= */
+
+.boton-avanzado{
+    width:100%;
+    padding:14px;
+    margin-top:20px;
+
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.06);
+
+    background:rgba(255,255,255,0.04);
+
+    color:#ddd;
+    cursor:pointer;
+
+    transition:0.3s;
+
+    font-size:15px;
+    font-weight:600;
+}
+
+.boton-avanzado:hover{
+    border:1px solid #cccccc;
+    box-shadow:0 0 15px #cccccc;
+    background:rgba(255,255,255,0.08);
+}
+
+@keyframes metalFlow{
+    0%{ background-position:left; }
+    100%{ background-position:right; }
+}
+
+body.avanzado-activo{
+    --accent:#cccccc;
+    --accent-soft:rgba(255,255,255,0.08);
+}
+
+body.avanzado-activo .glow-bar{
+    background:linear-gradient(to right, transparent, #ffffff, transparent);
+    box-shadow:0 0 20px #ffffff;
+}
+
+body.avanzado-activo h1{
+    color:#e5e5e5;
+}
+
+/* ===================== */
+/* BOTÓN MODO INTELIGENTE */
+/* ===================== */
+
+#btnModoInteligente{
+    font-weight:bold;
+}
+
+/* OFF */
+#btnModoInteligente.modo-off{
+    border:1px solid #8b0000;
+    background:rgba(139,0,0,0.15);
+    color:white;
+}
+
+#btnModoInteligente.modo-off:hover{
+    box-shadow:0 0 15px #8b0000;
+}
+
+/* ON */
+#btnModoInteligente.modo-on{
+    border:1px solid #0f7d32;
+    background:rgba(15,125,50,0.15);
+    color:white;
+}
+
+#btnModoInteligente.modo-on:hover{
+    box-shadow:0 0 15px #0f7d32;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="background-img"></div>
+<div class="overlay-dark"></div>
+
+<div class="glow-bar"></div>
+<div class="glow-bar bottom"></div>
+
+<div class="container">
+
+<div class="sidebar">
+<h3>FUENTES</h3>
+
+<button class="menu-btn active" onclick="cambiarModo('hot','purple',this)">
+<i class="fa-solid fa-fire"></i> Manhwas Hot
+</button>
+
+
+<button class="menu-btn" onclick="cambiarModo('normal','green',this)">
+<i class="fa-solid fa-book-open"></i> Manhwas normales
+</button>
+
+
+<button class="menu-btn" onclick="cambiarModo('manga','blue',this)">
+<i class="fa-solid fa-mask"></i> Mangas
+</button>
+
+
+<button class="menu-btn" onclick="cambiarModo('youtube','red',this)">
+<i class="fa-brands fa-youtube"></i> YouTube
+</button>
+
+<button class="menu-btn" onclick="cambiarModo('intense','orange',this)">
+<i class="fa-solid fa-comments"></i> IntenseDebate comentarios
+</button>
+
+<button id="btnAvanzado" class="menu-btn boton-avanzado">
+⚙ Modo Avanzado
+</button>
+
+</div>
+
+<div class="main">
+
+<h1>Procesador de Manhwa</h1>
+
+<div class="header-movil">
+    <div id="menuToggle" style="position:absolute;left:0;font-size:22px;cursor:pointer;">
+        ☰
+    </div>
+    <h1>Procesador de Manhwa</h1>
+</div>
+
+<button id="modoMovilBtn" class="btn" style="margin-bottom:15px;">
+📱 Modo móvil
+</button>
+
+<div class="box">
+<textarea id="entrada" placeholder="Pega aquí el texto..."></textarea>
+</div>
+
+<div class="middle-bar">
+<button class="btn" id="btnProcesar" onclick="procesar()">Procesar</button>
+<button id="btnModoInteligente" class="btn modo-off">
+🧠 Modo inteligente OFF
+</button>
+<button class="btn" id="btnCopiar" onclick="copiar()">Copiar resultado</button>
+<button class="btn" id="btnLimpiar" onclick="limpiar()">Limpiar</button>
+<button class="btn" id="btnPegar" onclick="pegarDesdePortapapeles()">📋 Pegar
+</button>
+
+</div>
+
+<div class="box">
+<div id="salida" class="salida-html"></div>
+</div>
+
+
+
+
+</div>
+</div>
+
+<div id="panelAvanzado" class="panel-avanzado">
+
+<div id="cerrarPanelAvanzado" style="
+    font-size:30px;
+    cursor:pointer;
+    margin-bottom:15px;
+    color:white;
+">
+✕
+</div>
+
+<button id="btnActualizarMovil" class="btn" style="
+    width:100%;
+    margin-bottom:20px;
+">
+🔄 Actualizar
+</button>
+
+<button id="btnVerFondo" class="btn" style="
+    width:100%;
+    margin-top:20px;
+    position:sticky;
+    bottom:0;
+">
+👁 Mantener para ver fondo
+</button>
+
+    <h3>Editor de Plantilla</h3>
+
+    <label><input type="checkbox" id="chkTitulo" checked> Mostrar Título</label>
+    <label><input type="checkbox" id="chkSinopsis" checked> Mostrar Sinopsis</label>
+    <label><input type="checkbox" id="chkCanal" checked> Mostrar Canal</label>
+    <label><input type="checkbox" id="chkVideo" checked> Mostrar Video</label>
+    <label><input type="checkbox" id="chkEncontrado" checked> Mostrar "Lo encontré en"</label>
+    <label><input type="checkbox" id="chkDecoracion" checked> Mostrar decoración superior</label>
+    <hr>
+
+    <h4>Editar etiquetas</h4>
+
+    <input type="text" id="editTitulo" placeholder="Título del manhwa">    
+    <input type="text" id="editSinopsis" value="Sipnosis:">
+    <input type="text" id="editCanal" value="Canal:">
+    <input type="text" id="editVideo" value="Video:">
+    <input type="text" id="editTituloVideo" value="Título de video:">
+    <input type="text" id="editEncontrado" value="Lo encontré en:">
+    <input type="text" id="editLeerAqui" placeholder="Link de lectura">
+
+</div>
+
+
+<script>
+
+
+let modoActual = "hot";
+
+let origenInteligente = null; // "normal" | "manga"
+
+let modoInteligenteActivo = false;
+
+document.getElementById("btnModoInteligente").onclick = function(){
+
+    modoInteligenteActivo = !modoInteligenteActivo;
+
+    if(modoInteligenteActivo){
+        this.innerText = "🧠 Modo inteligente ON";
+        this.classList.remove("modo-off");
+        this.classList.add("modo-on");
+    }else{
+        this.innerText = "🧠 Modo inteligente OFF";
+        this.classList.remove("modo-on");
+        this.classList.add("modo-off");
+    }
+};
+
+/* ===== PANEL AVANZADO ===== */
+
+const btnAvanzado = document.getElementById("btnAvanzado");
+const panelAvanzado = document.getElementById("panelAvanzado");
+
+btnAvanzado.onclick = function(){
+
+    panelAvanzado.classList.toggle("activo");
+
+    document.body.classList.toggle("avanzado-activo");
+
+};
+
+/* ===== CERRAR PANEL AVANZADO MOVIL ===== */
+
+const cerrarPanel = document.getElementById("cerrarPanelAvanzado");
+
+cerrarPanel.onclick = function(){
+
+    panelAvanzado.classList.remove("activo");
+
+    document.body.classList.remove("avanzado-activo");
+
+};
+
+/* ===== ACTUALIZAR DESDE PANEL MOVIL ===== */
+
+const btnActualizarMovil =
+    document.getElementById("btnActualizarMovil");
+
+btnActualizarMovil.onclick = function(){
+
+    procesar();
+
+};
+
+/* ===== VER FONDO MIENTRAS SE MANTIENE ===== */
+
+const btnVerFondo =
+    document.getElementById("btnVerFondo");
+
+btnVerFondo.addEventListener("touchstart", function(){
+
+    panelAvanzado.classList.add("ver-fondo");
+
+});
+
+btnVerFondo.addEventListener("touchend", function(){
+
+    panelAvanzado.classList.remove("ver-fondo");
+
+});
+
+/* PC también */
+btnVerFondo.addEventListener("mousedown", function(){
+
+    panelAvanzado.classList.add("ver-fondo");
+
+});
+
+btnVerFondo.addEventListener("mouseup", function(){
+
+    panelAvanzado.classList.remove("ver-fondo");
+
+});
+
+/* ===== CAMBIO DE MODO + COLOR ===== */
+function cambiarModo(modo, color, element){
+
+    modoActual = modo;
+    setTheme(color, element);
+
+    const btnIntel = document.getElementById("btnModoInteligente");
+
+    if(modo === "normal" || modo === "manga"){
+        btnIntel.style.display = "inline-block";
+    }else{
+        btnIntel.style.display = "none";
+        modoInteligenteActivo = false;
+        btnIntel.innerText = "🧠 Modo inteligente OFF";
+    }
+}
+
+/* ===== TEMA VISUAL ===== */
+function setTheme(color, element){
+
+    let root = document.documentElement;
+
+    if(color==="purple"){
+        root.style.setProperty('--accent','#a855f7');
+        root.style.setProperty('--accent-soft','rgba(168,85,247,0.15)');
+    }
+
+    if(color==="green"){
+        root.style.setProperty('--accent','#22c55e');
+        root.style.setProperty('--accent-soft','rgba(34,197,94,0.15)');
+    }
+
+    if(color==="blue"){
+        root.style.setProperty('--accent','#3b82f6');
+        root.style.setProperty('--accent-soft','rgba(59,130,246,0.15)');
+    }
+
+    if(color==="red"){
+        root.style.setProperty('--accent','#ef4444');
+        root.style.setProperty('--accent-soft','rgba(239,68,68,0.15)');
+    }
+
+    if(color==="orange"){
+        root.style.setProperty('--accent','#f97316');
+        root.style.setProperty('--accent-soft','rgba(249,115,22,0.15)');
+    }
+
+    document.querySelectorAll('.menu-btn').forEach(btn=>{
+        btn.classList.remove('active');
+    });
+
+    element.classList.add('active');
+
+    // 🔥 ESTO VA AQUÍ, FUERA DE LOS IF
+    document.getElementById("btnProcesar").style.borderColor =
+        getComputedStyle(document.documentElement)
+        .getPropertyValue('--accent');
+
+    document.getElementById("btnProcesar").style.boxShadow =
+        "0 0 12px var(--accent)";
+
+}
+
+/* ===== PROCESAR SEGÚN MODO ===== */
+function procesar(){
+
+    // Obtener texto de entrada
+    let texto = document.getElementById("entrada").value;
+
+    // Autocompletar panel avanzado con datos actuales
+    let lineas = texto.split("\n");
+    if(lineas.length > 0 && lineas[0].trim() !== ""){
+    if(document.getElementById("editTitulo").value.trim() === ""){
+    document.getElementById("editTitulo").value = lineas[0];
+}
+
+}
+
+    // Mostrar mensaje mientras procesa
+document.getElementById("salida").innerHTML = "⏳ Procesando...";
+
+setTimeout(() => {
+
+    if(modoActual === "hot"){
+        formatear();
+    }
+
+   else if (modoActual === "normal") {
+    formatearNormal();
+}
+
+    else if(modoActual === "manga"){
+
+        if(modoInteligenteActivo){
+            formatearMangaInteligente();
+        }else{
+            formatearManga();
+        }
+
+    }
+
+
+    else if(modoActual === "youtube"){
+        formatearYouTube();
+    }
+    else if(modoActual === "intense"){
+        formatearIntenseDebate();
+    }
+
+}, 10);
+}
+
+
+/* ===== COPIAR / LIMPIAR ===== */
+function copiar(){
+    const salida = document.getElementById("salida");
+
+    const range = document.createRange();
+    range.selectNodeContents(salida);
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    document.execCommand("copy");
+    selection.removeAllRanges();
+}
+
+
+function limpiar(){
+
+    // Limpiar entrada y salida
+    document.getElementById("entrada").value = "";
+    document.getElementById("salida").innerHTML = "";
+
+    // Resetear campos del panel avanzado
+    document.getElementById("editTitulo").value = "";
+    document.getElementById("editSinopsis").value = "Sipnosis:";
+    document.getElementById("editCanal").value = "Canal:";
+    document.getElementById("editVideo").value = "Video:";
+    document.getElementById("editTituloVideo").value = "Título de video:";
+    document.getElementById("editEncontrado").value = "Lo encontré en:";
+    document.getElementById("editLeerAqui").value = "";
+
+}
+
+async function pegarDesdePortapapeles(){
+    try{
+        const texto = await navigator.clipboard.readText();
+        document.getElementById("entrada").value = texto;
+    }catch(err){
+        alert("No se pudo acceder al portapapeles.");
+    }
+}
+
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* formatear() */
+/* formatearNormal() */
+/* formatearManga() */
+/* formatearYouTube() */
+
+
+
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+/* ===== AQUÍ PEGAS TODAS TUS FUNCIONES ===== */
+
+function obtenerTitulo(){
+    let titulo = document.getElementById("editTitulo").value.trim();
+
+    if(titulo === ""){
+        let lineas = document.getElementById("entrada").value.split("\n");
+        return lineas[0] || "";
+    }
+
+    return titulo;
+}
+
+function formatear(){
+
+let texto = document.getElementById("entrada").value;
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let tituloFinal =
+    document.getElementById("editTitulo").value.trim();
+
+if(tituloFinal === ""){
+    tituloFinal = lineasLimpias[0];
+}
+let sinopsis = "";
+let estado = "";
+let capitulos = 0;
+let comentarios = [];
+
+// ✅ USUARIOS CUYO NOMBRE SE MOSTRARÁ ARRIBA DEL COMENTARIO
+
+let usuariosVisibles = [
+    "narigod",
+    "serberus326",
+    "mattuu_arg.1",
+    "fap_god"
+];
+
+
+/* ======================= */
+/* SINOPSIS */
+/* ======================= */
+
+let finSinopsis = lineasLimpias.findIndex(l => l.toLowerCase() === "géneros");
+if(finSinopsis !== -1){
+    sinopsis = lineas.slice(1, finSinopsis).join("\n");
+}
+
+/* ======================= */
+/* ESTADO */
+/* ======================= */
+
+let estadoIndex = lineasLimpias.findIndex(l => l.toLowerCase() === "estado");
+if(estadoIndex !== -1){
+    estado = lineasLimpias[estadoIndex + 1];
+}
+
+/* ======================= */
+/* CAPÍTULOS (ROBUSTO) */
+/* ======================= */
+
+let matchTotalCaps = texto.match(/\(\s*(\d+)\s*capitulos?\s*\)/i);
+if(matchTotalCaps){
+    capitulos = parseInt(matchTotalCaps[1], 10);
+}else{
+    capitulos = lineasLimpias.filter(l =>
+        l.toLowerCase().includes("capitulo")
+    ).length;
+}
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = raw + "\n"; // 🔥 guardamos la primera línea
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+
+	    if(
+              siguiente.includes("responder") ||
+              siguiente.match(/^\+\d+/)
+            ){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+	  
+
+            let lineasCom = comentarioActual.trim().split("\n");
+
+           // detectar usuario (primera línea)
+           let primeraLinea = (lineasCom[0] || "").trim();
+
+	   // eliminar likes + fecha completa
+              primeraLinea = primeraLinea
+             .replace(/\d+\s*p.*$/i,"")   // elimina 1105p · hace...
+             .replace(/·.*$/i,"")         // elimina todo después del punto medio
+             .replace(/hace.*$/i,"")      // elimina fecha si quedó
+             .trim();
+
+           let posibleUsuario = primeraLinea.toLowerCase();
+
+	   let usuario = "";
+
+           let encontrado = usuariosVisibles.find(u => u.toLowerCase() === posibleUsuario);
+
+           if(encontrado){
+              lineasCom.shift();      // quitar línea original
+              usuario = primeraLinea; // usar versión limpia
+           }
+
+           comentarios.push({ 
+           texto: lineasCom.join("\n").trim(), 
+           nivel: nivelFinal,
+           usuario: usuario
+         });
+
+
+          comentarioActual = "";
+          leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    (c.usuario ? c.usuario + "<br>" : "") +
+    "_".repeat(c.nivel) + c.texto
+);
+
+/* ======================= */
+/* ANALISIS NTR (CORREGIDO) */
+/* ======================= */
+
+let textoComentarios = comentarios.map(c => c.texto.toLowerCase()).join(" ");
+
+let mencionaNTR = textoComentarios.includes("ntr");
+let mencionaNetori = textoComentarios.includes("netori");
+let aclaraNoNTR =
+    textoComentarios.includes("eso no es ntr") ||
+    textoComentarios.includes("no es ntr") ||
+    textoComentarios.includes("no es ntr hacia el prota");
+
+let ntrAlProta =
+    textoComentarios.includes("netorare") ||
+    textoComentarios.includes("engañan al prota") ||
+    textoComentarios.includes("le ponen los cuernos");
+
+let resumenNTR = "";
+
+if(mencionaNetori || (mencionaNTR && aclaraNoNTR && !ntrAlProta)){
+    resumenNTR = "Según los comentarios, hay Netori (el prota es quien engaña), no NTR hacia él.";
+}
+else if(ntrAlProta){
+    resumenNTR = "Según los comentarios, hay NTR clásico (Netorare) hacia el prota.";
+}
+else if(mencionaNTR && !aclaraNoNTR){
+    resumenNTR = "Se menciona NTR de forma ambigua. Se recomienda revisión.";
+}
+else{
+    resumenNTR = "Según los comentarios, no parece haber NTR relevante.";
+}
+
+/* ======================= */
+/* GENERAR RESULTADO */
+/* ======================= */
+
+let resultado = "";
+
+if(document.getElementById("chkDecoracion").checked){
+    resultado += "<div>🟪🟪🟪🟪</div><br>";
+}
+
+if(document.getElementById("chkTitulo").checked){
+    resultado += "<div style='font-size:27px;font-weight:bold;'>" + tituloFinal + "</div><br>";
+}
+resultado += "<div>(--)</div><br>";
+resultado += "<div>(Manhwa)</div><br>";
+
+if(document.getElementById("chkEncontrado").checked){
+    resultado += "<div>" + document.getElementById("editEncontrado").value + "</div><br>";
+}
+
+if(document.getElementById("chkSinopsis").checked){
+    resultado += "<div><strong>" + document.getElementById("editSinopsis").value + "</strong></div>";
+    resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
+}
+
+let leerAqui = document.getElementById("editLeerAqui").value.trim();
+
+if(leerAqui !== ""){
+    resultado += "<div><strong>Leer aquí:</strong> <a href='" + leerAqui + "' target='_blank'>" + leerAqui + "</a></div><br>";
+}else{
+    resultado += "<div><strong>Leer aquí:</strong></div><br>";
+}
+
+resultado += "<div><strong>Comentarios:</strong></div><br>";
+resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+
+if(estado && estado.toLowerCase() === "finalizado"){
+
+    let resumenFinal = "🟨 Esta finalizado";
+
+    let finalFeliz =
+        textoComentarios.includes("obra maestra") ||
+        textoComentarios.includes("final muy bueno") ||
+        textoComentarios.includes("final excelente") ||
+        textoComentarios.includes("final bastante bueno") ||
+        textoComentarios.includes("muy recomendable") ||
+        textoComentarios.includes("termina muy bien");
+
+    let noHarem =
+        textoComentarios.includes("no termina en harem") ||
+        textoComentarios.includes("no es harem") ||
+        textoComentarios.includes("se queda con una");
+
+    let parejaFinal = "";
+
+    if(textoComentarios.includes("termina con la de pelo")){
+        let match = textoComentarios.match(/termina con la de pelo [^.,\n]*/);
+        if(match){
+            parejaFinal = " con " + match[0].replace("termina con la ", "");
+        }
+    }
+    else if(
+        textoComentarios.includes("termina con la fl") ||
+        textoComentarios.includes("se queda con la fl")
+    ){
+        parejaFinal = " con la FL";
+    }
+
+    if(noHarem){
+        resumenFinal += ", aunque no termina en harem";
+    }
+
+    if(finalFeliz){
+        resumenFinal += ", termina en un final feliz para el prota";
+    }
+
+    if(parejaFinal !== ""){
+        resumenFinal += parejaFinal;
+    }
+
+    resumenFinal += " ( " + capitulos + " capitulos )";
+
+    resultado += "<div><strong>" + resumenFinal + "</strong></div><br>";
+
+}else{
+    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+}
+
+resultado += "<div><strong>❕No tiene NTR</strong></div>";
+resultado += "<div>" + resumenNTR + "</div><br>";
+resultado += "<div>______________________________________</div>";
+
+document.getElementById("salida").innerHTML = resultado;
+}
+
+/* ======================= */
+/* Manhwas Normales */
+/* ======================= */
+
+function formatearNormal(){
+
+let texto = document.getElementById("entrada").value;
+
+
+if (modoInteligenteActivo) {
+    origenInteligente = "normal";
+    formatearMangaInteligente();
+    origenInteligente = null;
+    return;
+}
+
+
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let tituloFinal =
+    document.getElementById("editTitulo").value.trim();
+
+if(tituloFinal === ""){
+    tituloFinal = lineasLimpias[0];
+}
+let sinopsis = "";
+let estado = "";
+let capitulos = 0;
+let comentarios = [];
+
+/* ======= RECICLADO: SINOPSIS ======= */
+let finSinopsis = lineasLimpias.findIndex(l => l.toLowerCase() === "géneros");
+if(finSinopsis !== -1){
+    sinopsis = lineas.slice(1, finSinopsis).join("\n");
+}
+
+/* ======= RECICLADO: ESTADO ======= */
+let estadoIndex = lineasLimpias.findIndex(l => l.toLowerCase() === "estado");
+if(estadoIndex !== -1){
+    estado = lineasLimpias[estadoIndex + 1];
+}
+
+/* ======= RECICLADO: CAPÍTULOS ======= */
+let matchTotalCaps = texto.match(/\(\s*(\d+)\s*capitulos?\s*\)/i);
+if(matchTotalCaps){
+    capitulos = parseInt(matchTotalCaps[1], 10);
+}else{
+    capitulos = lineasLimpias.filter(l =>
+        l.toLowerCase().includes("capitulo")
+    ).length;
+}
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = "";
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+            comentarios.push({ texto: comentarioActual.trim(), nivel: nivelFinal });
+            comentarioActual = "";
+            leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    "_".repeat(c.nivel) + c.texto
+)
+
+/* ======= DETECCIÓN SIMPLE ======= */
+let textoComentarios = comentarios.join(" ").toLowerCase();
+
+let tieneNTR =
+    textoComentarios.includes("ntr") ||
+    textoComentarios.includes("engaña") ||
+    textoComentarios.includes("infiel") ||
+    textoComentarios.includes("le fue infiel");
+
+let haySpoiler =
+    textoComentarios.includes("muere") ||
+    textoComentarios.includes("muerto") ||
+    textoComentarios.includes("final de la novela") ||
+    textoComentarios.includes("en la novela");
+
+/* ======= GENERAR RESULTADO NORMAL ======= */
+let resultado = "";
+
+if(document.getElementById("chkTitulo").checked){
+    resultado += "<div style='font-size:27px;font-weight:bold;'>" + tituloFinal + "</div><br>";
+}
+if(document.getElementById("chkSinopsis").checked){
+    resultado += "<div><strong>" + document.getElementById("editSinopsis").value + "</strong></div>";
+    resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
+}
+
+let leerAqui = document.getElementById("editLeerAqui").value.trim();
+
+if(leerAqui !== ""){
+    if(!leerAqui.startsWith("http")){
+        leerAqui = "https://" + leerAqui;
+    }
+
+    resultado += "<div><strong>Leer aquí:</strong> <a href='" + leerAqui + "' target='_blank'>" + leerAqui + "</a></div><br>";
+}else{
+    resultado += "<div><strong>Leer aquí:</strong></div><br>";
+}
+
+resultado += "<div><strong>Comentarios:</strong></div><br>";
+resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+
+if(estado && estado.toLowerCase() === "finalizado"){
+    resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
+}else{
+    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+}
+
+if(haySpoiler){
+    resultado += "<div><strong>Spoiler:</strong> Se mencionan eventos importantes.</div><br>";
+}
+
+if(tieneNTR){
+    resultado += "<div><strong>❗️Tiene NTR</strong></div>";
+}else{
+    resultado += "<div><strong>❕No tiene NTR</strong></div>";
+}
+
+resultado += "<div>______________________________________</div>";
+
+document.getElementById("salida").className = "salida-normal";
+document.getElementById("salida").innerHTML = resultado;
+}
+
+/* ======================= */
+/* Mangas */
+/* ======================= */
+
+
+function formatearManga(){
+
+if (modoInteligenteActivo) {
+    origenInteligente = "manga";
+    formatearMangaInteligente();
+    origenInteligente = null;
+    return;
+}
+
+
+let texto = document.getElementById("entrada").value;
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let tituloFinal = document.getElementById("editTitulo").value.trim() || lineasLimpias[0];
+
+let sinopsis = "";
+let estado = "";
+let capitulos = 0;
+let comentarios = [];
+
+
+/* ======= RECICLADO ======= */
+let finSinopsis = lineasLimpias.findIndex(l => l.toLowerCase() === "géneros");
+if(finSinopsis !== -1){
+    sinopsis = lineas.slice(1, finSinopsis).join("\n");
+}
+
+
+/* ======================= */
+/* ESTADO */
+/* ======================= */
+
+let estadoIndex = lineasLimpias.findIndex(l => l.toLowerCase() === "estado");
+if(estadoIndex !== -1){
+    estado = lineasLimpias[estadoIndex + 1];
+}
+
+/* ======================= */
+/* CAPÍTULOS (ROBUSTO) */
+/* ======================= */
+
+let matchTotalCaps = texto.match(/\(\s*(\d+)\s*capitulos?\s*\)/i);
+if(matchTotalCaps){
+    capitulos = parseInt(matchTotalCaps[1], 10);
+}else{
+    capitulos = lineasLimpias.filter(l =>
+        l.toLowerCase().includes("capitulo")
+    ).length;
+}
+
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = "";
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+            comentarios.push({ texto: comentarioActual.trim(), nivel: nivelFinal });
+            comentarioActual = "";
+            leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    "_".repeat(c.nivel) + c.texto
+)
+
+
+/* ======= RESULTADO ======= */
+let resultado = "";
+
+
+// TÍTULO CORREGIDO
+if(document.getElementById("chkTitulo").checked){
+
+    let tituloFinal = obtenerTitulo();
+
+    resultado += "<div style='font-size:27px;font-weight:bold;'>" 
+        + tituloFinal + 
+    "</div><br>";
+}
+
+// VIDEO
+/* ===== TÍTULO DE VIDEO (EDITABLE) ===== */
+let tituloVideo = document.getElementById("editTituloVideo").value.trim()
+    || "Título de video:";
+
+resultado += "<div><strong>" + tituloVideo + "</strong></div><br>";
+
+/* ===== ETIQUETA VIDEO ===== */
+if (document.getElementById("chkVideo").checked) {
+
+    let etiquetaVideo = document.getElementById("editVideo").value.trim()
+        || "Video:";
+
+    resultado += "<div><strong>" + etiquetaVideo + "</strong></div><br>";
+}
+
+// CANAL
+if(document.getElementById("chkCanal").checked){
+    resultado += "<div><strong>" + document.getElementById("editCanal").value + "</strong> </div><br>";
+}
+
+let leerAqui = document.getElementById("editLeerAqui").value.trim();
+
+if(leerAqui !== ""){
+    resultado += "<div><strong>Leer aquí:</strong> <a href='" + leerAqui + "' target='_blank'>" + leerAqui + "</a></div><br>";
+}else{
+    resultado += "<div>Leer aquí:</div><br><br>";
+}
+
+if(document.getElementById("chkSinopsis").checked){
+    resultado += "<div><strong>" + document.getElementById("editSinopsis").value + "</strong></div>";
+    resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
+}
+
+resultado += "<div><strong>Comentarios:</strong></div><br>";
+resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+
+if(estado && estado.toLowerCase() === "finalizado"){
+    resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
+}else{
+    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+}
+
+resultado += "<div>______________________________________</div>";
+
+document.getElementById("salida").className = "salida-manga";
+document.getElementById("salida").innerHTML = resultado;
+}
+
+
+function formatearMangaInteligente(){
+
+    let texto = document.getElementById("entrada").value;
+
+    let resultado = "";
+    let sinopsis = "";
+    let titulo = "";
+    let estado = "";
+    let totalCapitulos = "";
+
+    /* =========================*/
+    /* PREPARAR LINEAS LIMPIAS  */
+    /* =========================*/
+
+    let lineasFiltradas = texto
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l !== "");
+
+    if(lineasFiltradas.length === 0){
+        document.getElementById("salida").innerHTML = "No hay texto.";
+        return;
+    }
+
+    /* =========================*/
+    /* DETECTAR TITULO          */
+    /* =========================*/
+
+    // Asumimos que la primera línea larga es el título
+    titulo = lineasFiltradas[0];
+
+    // Si la primera línea es muy corta, buscar otra más sólida
+    if(titulo.length < 3 && lineasFiltradas.length > 1){
+        titulo = lineasFiltradas[1];
+    }
+
+    /* ========================= */
+   /* DETECTAR ESTADO (ROBUSTO) */
+ /* ========================= */
+
+estado = "";
+
+for(let i = 0; i < lineasFiltradas.length; i++){
+    let lower = lineasFiltradas[i].toLowerCase();
+
+    // formato: "Estado del título" -> siguiente línea
+    if(lower.includes("estado")){
+        let siguiente = (lineasFiltradas[i + 1] || "").toLowerCase();
+        if(siguiente.includes("emisión") || siguiente.includes("ongoing")){
+            estado = "En emisión";
+        }
+        if(
+            siguiente.includes("finalizado") ||
+            siguiente.includes("finished") ||
+            siguiente.includes("complete")
+        ){
+            estado = "Finalizado";
+        }
+    }
+
+    // formato directo en una línea
+    if(
+        lower.includes("en emisión") ||
+        lower.includes("ongoing")
+    ){
+        estado = "En emisión";
+    }
+
+    if(
+        lower.includes("finalizado") ||
+        lower.includes("finished") ||
+        lower.includes("complete")
+    ){
+        estado = "Finalizado";
+    }
+}
+
+
+/* ================================ */
+/* DETECTAR ESTADO Y CAPÍTULOS REAL */
+/* ================================ */
+
+estado = "";
+totalCapitulos = "";
+
+let posiblesCapitulos = [];
+let detectaEnEmision = false;
+let detectaFinalizado = false;
+
+for(let i = 0; i < lineasFiltradas.length; i++){
+    let l = lineasFiltradas[i];
+    let lower = l.toLowerCase();
+
+
+/* ✅ IGNORAR LÍNEAS DE COMENTARIOS */
+    if (lower.includes("comentarios")) {
+        continue; 
+    }
+
+
+
+    /* ----- ESTADO (MEJORADO SIN ROMPER) ----- */
+
+    if(
+        lower.includes("en emisión") ||
+        lower.includes("en emision") ||
+        lower.includes("ongoing") ||
+        lower.includes("sigue en publicación") ||
+        lower.includes("sigue en publicacion") ||
+        lower.startsWith("estado: ongoing")
+    ){
+        detectaEnEmision = true;
+    }
+
+    if(
+        lower.startsWith("estado: completed") ||
+        lower.startsWith("estado: finalizado") ||
+        lower.startsWith("status: completed") ||
+        lower === "finalizado"
+    ){
+        detectaFinalizado = true;
+    }
+
+    /* ----- CAPÍTULOS EN MISMA LÍNEA ----- */
+    let matchLinea = l.match(/(\d+)\s*(chapters|cap[ií]tulos)/i);
+    if(matchLinea){
+        posiblesCapitulos.push(parseInt(matchLinea[1],10));
+    }
+
+// ✅ detectar EPISODIOS como capítulos
+let matchEpisodios = l.match(/(\d+)\s*episodios?/i);
+if(matchEpisodios){
+    posiblesCapitulos.push(parseInt(matchEpisodios[1],10));
+}
+
+    /* ----- CAPÍTULOS EN LÍNEA SIGUIENTE ----- */
+    if(
+        lower.startsWith("capítulos") ||
+        lower.startsWith("capitulos") ||
+        lower.startsWith("capítulos disponibles")
+    ){
+        let siguiente = (lineasFiltradas[i + 1] || "").trim();
+        if(/^\d+$/.test(siguiente)){
+            posiblesCapitulos.push(parseInt(siguiente,10));
+        }
+    }
+
+    /* ----- CAPÍTULOS POR LISTA (MEJORA CLAVE) ----- */
+    let matchLista = l.match(/cap[ií]tulo\s*(\d+)/i);
+    if(matchLista){
+        posiblesCapitulos.push(parseInt(matchLista[1],10));
+    }
+}
+
+/* ----- DECIDIR TOTAL DE CAPÍTULOS ----- */
+if(posiblesCapitulos.length > 0){
+    totalCapitulos = Math.max(...posiblesCapitulos);
+}
+
+/* ----- DECIDIR ESTADO FINAL (PRIORIDAD CORRECTA) ----- */
+if(detectaEnEmision){
+    estado = "En emisión";
+}else if(detectaFinalizado){
+    estado = "Finalizado";
+}else{
+    estado = "";
+}
+
+    /* ========================= */
+/* DETECTAR SINOPSIS ROBUSTA */
+/* ========================= */
+
+sinopsis = "";
+
+let palabrasCorte = [
+    "genre","género","genero",
+    "status","estado",
+    "author","artist",
+    "chapter","capitulo",
+    "capítulos","capitulos"
+];
+
+let palabrasInicio = [
+    "sinopsis","synopsis",
+    "summary",
+    "description"
+];
+
+let inicio = -1;
+
+/* ---------- 1️⃣ PRIMER INTENTO (TU LÓGICA ORIGINAL) ---------- */
+
+// Buscar etiqueta explícita
+for(let i = 0; i < lineasFiltradas.length; i++){
+    let lower = lineasFiltradas[i].toLowerCase();
+    if(palabrasInicio.some(p => lower.startsWith(p))){
+        inicio = i + 1;
+        break;
+    }
+}
+
+// Si no hay etiqueta, usar Status / Genre
+if(inicio === -1){
+    for(let i = 0; i < lineasFiltradas.length; i++){
+        let lower = lineasFiltradas[i].toLowerCase();
+        if(
+            lower.includes("status") ||
+            lower.includes("estado") ||
+            lower.includes("genre") ||
+            lower.includes("género")
+        ){
+            inicio = i + 1;
+            break;
+        }
+    }
+}
+
+// Extraer sinopsis clásica
+if(inicio !== -1){
+    for(let i = inicio; i < lineasFiltradas.length; i++){
+        let lower = lineasFiltradas[i].toLowerCase();
+
+        if(palabrasCorte.some(p => lower.includes(p))) break;
+        if(lower.match(/chapter\s*\d+/i)) break;
+
+        sinopsis += lineasFiltradas[i] + " ";
+    }
+}
+
+sinopsis = sinopsis.trim();
+
+/* ---------- 2️⃣ VALIDACIÓN (DETECTAR BASURA) ---------- */
+
+let sinopsisInvalida =
+    sinopsis === "" ||
+    sinopsis.length < 80 ||
+    sinopsis.toLowerCase().includes("en emisión") ||
+    sinopsis.toLowerCase().includes("capítulos") ||
+    sinopsis.toLowerCase().includes("capitulos") ||
+    sinopsis.toLowerCase().includes("manhwa") ||
+    /^\d+(\.\d+)?/.test(sinopsis);
+
+
+/* ---------- 3️⃣ FALLBACK NARRATIVO CORREGIDO ---------- */
+
+if (sinopsisInvalida) {
+    sinopsis = "";
+    let enNarrativa = false;
+
+    for (let i = 0; i < lineasFiltradas.length; i++) {
+        let l = lineasFiltradas[i].trim();
+        let lower = l.toLowerCase();
+
+        /* ===== CORTES REALES (UI, NO TEXTO) ===== */
+if (
+    lower.includes("leer menos") ||
+    lower.includes("ver menos") ||
+    lower.includes("ver un poco") ||
+    lower.includes("un poco menos") ||
+    lower.includes("leer más") ||
+    lower.includes("comenzar a leer") ||
+    lower.includes("empieza a leer") ||
+    lower.includes("seguir") ||
+    lower.includes("filtrar") ||
+    lower.includes("ordenar") ||
+    lower.startsWith("#") ||               // hashtags
+    lower.includes("episodios") ||
+    lower.includes("episodio") ||
+    lower.includes("shares") ||
+    lower.includes("capítulo ") ||
+    lower.includes("capítulos") ||
+    lower.includes("manhwa español")
+) {
+    if (enNarrativa) break;
+    continue;
+}
+
+        /* ===== IGNORAR METADATA ANTES DE EMPEZAR (MEJORADO) ===== */
+         if (
+          !enNarrativa &&
+         (
+           /^\d+(\.\d+)?$/.test(l) || // ratings 8.3
+           lower === "manhwa" ||
+           lower.startsWith("tipo") ||
+           lower.startsWith("año") ||
+           lower.startsWith("estado") ||
+           lower.startsWith("capítulos") ||
+           lower.startsWith("capitulos")
+         )
+       ) {
+           continue;
+         }
+
+        
+
+// ===== DETECTAR CONTENIDO NARRATIVO (FUERTE) =====
+let esInicioNarrativo =
+(
+  l.includes(".") ||
+  l.includes("…") ||
+  l.includes("¡") ||
+  l.includes("¿") ||
+  l.startsWith("“") ||
+  l.startsWith("\"")
+)
+&& !(
+  lower === titulo.toLowerCase() ||
+  lower.startsWith("tipo") ||
+  lower.startsWith("año") ||
+  lower.startsWith("estado") ||
+  lower.startsWith("capítulos") ||
+  lower.startsWith("capitulos") ||
+  lower.includes("manhwa") ||
+  /^\d+(\.\d+)?$/.test(lower)
+);
+
+// ===== DETECTAR CONTENIDO NARRATIVO (SUAVE – FALLBACK) =====
+let esNarrativaSuave =
+  lower.includes("un día") ||
+  lower.includes("un dia") ||
+  lower.includes("recuerdo") ||
+  lower.includes("reencarn") ||
+  lower.includes("villana") ||
+  lower.includes("yo ") ||
+  lower.includes("mi ") ||
+  lower.includes("ella") ||
+  lower.includes("él");
+
+// ===== CONTROL DE ARRANQUE (DOBLE CONFIRMACIÓN) =====
+
+// ✅ 1) Arranque fuerte
+if (!enNarrativa && esInicioNarrativo) {
+    enNarrativa = true;
+    sinopsis += l + " ";
+}
+
+// ✅ 2) Fallback suave si el fuerte no apareció
+else if (!enNarrativa && esNarrativaSuave) {
+    enNarrativa = true;
+    sinopsis += l + " ";
+}
+
+// ✅ 3) Continuación normal
+else if (enNarrativa) {
+    sinopsis += l + " ";
+}
+
+}
+
+}
+
+
+/* ========================= */
+/* CONSTRUIR RESULTADO      */
+/* ========================= */
+
+
+resultado = "";
+
+/* ✅ SI VIENE DE MANHWAS NORMALES */
+if (modoActual === "normal") {
+
+    if (document.getElementById("chkTitulo").checked) {
+        resultado += "<div style='font-size:27px;font-weight:bold;'>" 
+            + titulo + 
+        "</div><br>";
+    }
+
+    if (document.getElementById("chkSinopsis").checked && sinopsis !== "") {
+        resultado += "<div><strong>" 
+            + document.getElementById("editSinopsis").value + 
+        "</strong></div>";
+
+        resultado += "<div>" 
+            + sinopsis.replace(/\n/g, "<br>") + 
+        "</div><br>";
+    }
+
+    let leerAqui = document.getElementById("editLeerAqui").value.trim();
+
+    if (leerAqui !== "") {
+        if (!leerAqui.startsWith("http")) {
+            leerAqui = "https://" + leerAqui;
+        }
+
+        resultado += "<div><strong>Leer aquí:</strong> " +
+            "<a href='" + leerAqui + "' target='_blank'>" +
+            leerAqui +
+            "</a></div><br>";
+    } else {
+        resultado += "<div><strong>Leer aquí:</strong></div><br>";
+    }
+
+    resultado += "<div><strong>Comentarios:</strong></div><br>";
+    resultado += "<div></div><br>";
+
+    if (estado && estado.toLowerCase() === "finalizado") {
+        resultado += "<div><strong>🟨 Finalizado ( "
+            + totalCapitulos +
+        " capitulos )</strong></div><br>";
+    } else {
+        resultado += "<div><strong>🟩 Emisión ( "
+            + totalCapitulos +
+        " capitulos )</strong></div><br>";
+    }
+
+    resultado += "<div><strong>❕No tiene NTR</strong></div>";
+    resultado += "<div>______________________________________</div>";
+
+    document.getElementById("salida").className = "salida-normal";
+    document.getElementById("salida").innerHTML = resultado;
+
+    return;
+}
+
+
+resultado = "";
+
+/* ===== TÍTULO ===== */
+if (document.getElementById("chkTitulo").checked) {
+    resultado += "<div style='font-size:27px;font-weight:bold;'>"
+        + titulo +
+    "</div><br>";
+}
+
+/* ===== VIDEO ===== */
+let tituloVideo = document.getElementById("editTituloVideo").value.trim()
+    || "Título de video:";
+resultado += "<div><strong>" + tituloVideo + "</strong></div><br>";
+
+/* ===== CANAL ===== */
+if (document.getElementById("chkCanal").checked) {
+    resultado += "<div><strong>"
+        + document.getElementById("editCanal").value +
+    "</strong></div><br>";
+}
+
+/* ===== LEER AQUÍ ===== */
+let leerAqui = document.getElementById("editLeerAqui").value.trim();
+if (leerAqui !== "") {
+    resultado += "<div><strong>Leer aquí:</strong> " + leerAqui + "</div><br>";
+} else {
+    resultado += "<div>Leer aquí:</div><br><br>";
+}
+
+/* ===== SINOPSIS ===== */
+if (document.getElementById("chkSinopsis").checked && sinopsis !== "") {
+    resultado += "<div><strong>"
+        + document.getElementById("editSinopsis").value +
+    "</strong></div>";
+    resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
+}
+
+/* ===== ESTADO + CAPÍTULOS (AL FINAL) ===== */
+if (estado && estado.toLowerCase() === "finalizado") {
+    resultado += "<div><strong>🟨 Finalizado ( "
+        + totalCapitulos +
+    " capítulos )</strong></div><br>";
+} else {
+    resultado += "<div><strong>🟩 Emisión ( "
+        + totalCapitulos +
+    " capítulos )</strong></div><br>";
+}
+
+/* ===== FINAL ===== */
+resultado += "<div>______________________________________</div>";
+
+document.getElementById("salida").className =
+    (modoActual === "normal") ? "salida-normal" : "salida-manga";
+document.getElementById("salida").innerHTML = resultado;
+
+}
+
+
+/* ======================= */
+/* YouTube */
+/* ====================== */
+
+function formatearYouTube(){
+    const texto = document.getElementById("entrada").value;
+
+    const lineas = texto
+        .replace(/&nbsp;|&amp;nbsp;/g, " ")
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l !== "");
+
+    const palabrasTiempo = [
+        "segundo","segundos","minuto","minutos","hora","horas",
+        "día","días","semana","semanas","mes","meses","año","años",
+        "second","seconds","minute","minutes","hour","hours",
+        "day","days","week","weeks","month","months","year","years",
+        "ago","hace","editado"
+    ];
+
+    const esFecha = l =>
+        palabrasTiempo.some(p => l.toLowerCase().includes(p));
+
+    const esNumeroAislado = l => /^[0-9]+$/.test(l);
+
+    // ===== 1. EXTRAER BLOQUES =====
+    let bloques = [];
+    let i = 0;
+
+    while(i < lineas.length){
+
+        // @usuario
+        if(lineas[i].startsWith("@")) i++;
+
+        // fecha
+        if(i < lineas.length && esFecha(lineas[i])) i++;
+
+        let textoComentario = [];
+
+        while(
+            i < lineas.length &&
+            !esNumeroAislado(lineas[i]) &&
+            lineas[i].toLowerCase() !== "responder"
+        ){
+            textoComentario.push(lineas[i]);
+            i++;
+        }
+
+        // saltar likes + responder
+        if(esNumeroAislado(lineas[i]) && lineas[i+1]?.toLowerCase() === "responder"){
+            i += 2;
+        }else if(lineas[i]?.toLowerCase() === "responder"){
+            i++;
+        }
+
+        bloques.push(textoComentario.join(" "));
+    }
+
+    // ===== 2. CLASIFICAR BASE / RESPUESTAS =====
+    let resultado = [];
+    let idx = 0;
+
+    while(idx < bloques.length){
+
+        const base = bloques[idx];
+        let respuestas = [];
+
+        // mirar si MÁS ADELANTE hay "Ocultar respuestas"
+        let hayOcultar = lineas.slice(idx).some(l => l.toLowerCase() === "ocultar respuestas");
+
+        if(hayOcultar){
+            let j = idx + 1;
+            while(
+                j < bloques.length &&
+                lineas.slice(j).some(l => l.toLowerCase() !== "ocultar respuestas")
+            ){
+                respuestas.push(bloques[j]);
+                j++;
+            }
+            idx = j + 1;
+        }else{
+            idx++;
+        }
+
+        resultado.push({ base, respuestas });
+    }
+
+    // ===== 3. FORMATO FINAL =====
+    let salida = [];
+
+    resultado.forEach(grupo => {
+        salida.push("_ " + grupo.base);
+        let nivel = 2;
+        grupo.respuestas.forEach(r => {
+            salida.push("_".repeat(nivel) + " " + r);
+            nivel += 2;
+        });
+    });
+
+    document.getElementById("salida").innerHTML =
+        "<div><strong>Comentarios de YouTube:</strong></div><br>" +
+        salida.join("<br><br>") +
+        "<br><div>______________________________________</div>";
+}
+
+/* ======================= */
+/* IntenseDebate */
+/* ======================= */
+
+
+function formatearIntenseDebate(){
+
+let texto = document.getElementById("entrada").value;
+let lineas = texto.split("\n");
+let lineasLimpias = lineas.map(l => l.trim());
+
+let comentarios = [];
+
+/* ======================= */
+/* EXTRAER COMENTARIOS */
+/* ======================= */
+
+let inicioComentarios = lineasLimpias.findIndex(l =>
+    l.toLowerCase().startsWith("comentarios")
+);
+
+if(inicioComentarios !== -1){
+    let comentarioActual = "";
+    let leyendoComentario = false;
+    let esperandoPrimerUsuario = true;
+    let repliesPendientes = 0;
+    let nivelBase = 1;
+    let nivelReply = 3;
+
+    for(let i = inicioComentarios + 1; i < lineas.length; i++){
+        let raw = lineas[i];
+        let linea = raw.trim();
+        let lower = linea.toLowerCase();
+
+        if(lower.startsWith("comentarios")) continue;
+
+        let matchReply = lower.match(/(\d+)\s*repl(?:y|ies)/);
+        if(matchReply){
+            repliesPendientes = parseInt(matchReply[1]);
+            nivelReply = 3;
+            continue;
+        }
+
+        if(lower === "responder"){
+            leyendoComentario = false;
+            continue;
+        }
+
+        if(lower.match(/^\+\d+/)) continue;
+        if(linea === "") continue;
+
+        if(!leyendoComentario){
+            if(esperandoPrimerUsuario){
+                if(
+                    lower.startsWith("ver todo") ||
+                    lower.startsWith("tablero") ||
+                    lower.startsWith("editar perfil") ||
+                    lower.startsWith("cerrar sesión") ||
+                    lower.startsWith("sesión iniciada") ||
+                    lower.startsWith("ordenar por") ||
+                    lower.match(/^\+\d+/)
+                ) continue;
+
+                esperandoPrimerUsuario = false;
+            }
+            comentarioActual = "";
+            leyendoComentario = true;
+            continue;
+        }
+
+        comentarioActual += raw + "\n";
+
+        let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
+            let nivelFinal = nivelBase;
+            if(repliesPendientes > 0){
+                nivelFinal = nivelReply;
+                nivelReply += 2;
+                repliesPendientes--;
+            }
+            comentarios.push({ texto: comentarioActual.trim(), nivel: nivelFinal });
+            comentarioActual = "";
+            leyendoComentario = false;
+        }
+    }
+
+    if(comentarioActual.trim() !== ""){
+        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
+    }
+}
+
+/* ======================= */
+/* FORMATEAR SOLO COMENTARIOS */
+/* ======================= */
+
+let comentariosFormateados = comentarios.map(c =>
+    "_".repeat(c.nivel) + c.texto
+);
+
+/* 👇 SOLO ESTO 👇 */
+document.getElementById("salida").innerHTML =
+    comentariosFormateados.join("<br><br>");
+
+}
+
+/* =========================
+   ACTIVAR MODO MOVIL
+========================= */
+
+window.addEventListener("DOMContentLoaded", function(){
+
+    const btnMovil = document.getElementById("modoMovilBtn");
+
+btnMovil.onclick = function(){
+
+    document.body.classList.toggle("modo-movil");
+
+    if(document.body.classList.contains("modo-movil")){
+        btnMovil.innerHTML = "💻 Modo PC";
+    }else{
+        btnMovil.innerHTML = "📱 Modo móvil";
+        document.querySelector(".sidebar").classList.remove("activo");
+    }
+
+};
+
+    const menuBtn = document.getElementById("menuToggle");
+const sidebar = document.querySelector(".sidebar");
+
+menuBtn.onclick = function(){
+    sidebar.classList.toggle("activo");
+};
+
+});
+
+</script>
+
+</body>
+</html>
