@@ -506,11 +506,38 @@ body.modo-movil .panel-avanzado{
 
 body.modo-movil #menuToggle{
     position:fixed;
-    left:18px;
-    top:10px;              /* más arriba */
-    z-index:999;
-    font-size:32px;        /* más grande */
-    padding:10px;          /* área táctil más grande */
+
+    left:14px;
+    bottom:18px;
+
+    z-index:1200;
+
+    font-size:30px;
+
+    width:56px;
+    height:56px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:rgba(15,15,25,0.78);
+
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    box-shadow:0 0 18px rgba(0,0,0,0.45);
+
+    transition:0.3s;
+}
+
+/* Hover / toque */
+body.modo-movil #menuToggle:active{
+    transform:scale(0.95);
 }
 
 body.modo-movil .sidebar.activo{
