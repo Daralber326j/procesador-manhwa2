@@ -1420,7 +1420,7 @@ body.modo-movil.modo-compacto textarea{
 </div>
 
     <div class="config-actions">
-        <button class="btn" id="btnAplicarConfigVisual">Aplicar colores</button>
+        <button class="btn" id="btnAplicarConfigVisual">Aplicar cambios</button>
         <button class="btn" id="btnResetConfigVisual">Restaurar diseño</button>
     </div>
 
@@ -1621,14 +1621,21 @@ function obtenerColorModo(modo){
 function guardarConfiguracionVisual(){
     if(!guardarConfigVisual){
         localStorage.removeItem("config_visual_modos");
-        return;
+        return false;
     }
 
-    localStorage.setItem("config_visual_modos", JSON.stringify({
-        guardar: true,
-        colores: coloresModo,
-        extra: configExtra
-    }));
+    try{
+        localStorage.setItem("config_visual_modos", JSON.stringify({
+            guardar: true,
+            colores: coloresModo,
+            extra: configExtra
+        }));
+
+        return true;
+    }catch(error){
+        alert("No se pudo guardar la configuración. La imagen puede ser demasiado pesada para el navegador.");
+        return false;
+    }
 }
 
 function cargarConfiguracionVisual(){
@@ -1909,12 +1916,12 @@ if(inputFondoArchivo){
             return;
         }
 
-        /// Evita guardar imágenes demasiado pesadas
-if(archivo.size > 10 * 1024 * 1024){
-    alert("La imagen es muy pesada. Usa una imagen menor de 10 MB.");
-    this.value = "";
-    return;
-}
+        // Evita guardar imágenes demasiado pesadas
+        if(archivo.size > 5 * 1024 * 1024){
+            alert("La imagen es muy pesada. Usa una imagen menor de 5 MB.");
+            this.value = "";
+            return;
+        }
 
         const lector = new FileReader();
 
@@ -1922,17 +1929,30 @@ if(archivo.size > 10 * 1024 * 1024){
             configExtra.fondoPersonalizado = e.target.result;
             configExtra.fondo = "__personalizado__";
 
+            // Activar guardado automáticamente para que no se pierda al recargar
+            guardarConfigVisual = true;
+
+            const chkGuardarVisual = document.getElementById("chkGuardarConfigVisual");
+
+            if(chkGuardarVisual){
+                chkGuardarVisual.checked = true;
+            }
+
             if(selectFondo){
                 selectFondo.value = "__personalizado__";
             }
 
             aplicarConfiguracionExtra();
             sincronizarPanelConfiguracion();
-            guardarConfiguracionVisual();
 
-            alert("Imagen de fondo aplicada.");
+            const guardadoCorrecto = guardarConfiguracionVisual();
+
+            if(guardadoCorrecto){
+                alert("Imagen de fondo aplicada y guardada.");
+            }
         };
 
+        // ✅ ESTA LÍNEA TE FALTABA
         lector.readAsDataURL(archivo);
     };
 }
@@ -2033,7 +2053,7 @@ if(chkGuardarGuardados){
             aplicarColorVisual(obtenerColorModo(modoActual));
             guardarConfiguracionVisual();
 
-            alert("Colores aplicados correctamente.");
+            alert("Cambios aplicados correctamente.");
         };
     }
 
@@ -4070,16 +4090,11 @@ btnMovil.onclick = function(){
 
     if(document.body.classList.contains("modo-movil")){
         btnMovil.innerHTML = "💻 Modo PC";
+        localStorage.setItem("modo_visual", "movil");
     }else{
         btnMovil.innerHTML = "📱 Modo móvil";
         document.querySelector(".sidebar").classList.remove("activo");
-    }
-
-    if(configExtra.guardarModoMovil){
-        localStorage.setItem(
-            "modo_movil_guardado",
-            document.body.classList.contains("modo-movil") ? "true" : "false"
-        );
+        localStorage.setItem("modo_visual", "pc");
     }
 };
 
@@ -4108,14 +4123,16 @@ aplicarColorVisual(obtenerColorModo(modoActual));
 // Aplicar tamaño, fondo, compacto, botones visibles
 aplicarConfiguracionExtra();
 
-// Restaurar modo móvil si está activado
-if(configExtra.guardarModoMovil){
-    const modoMovilGuardado = localStorage.getItem("modo_movil_guardado");
+// Restaurar modo móvil o PC guardado
+const modoVisual = localStorage.getItem("modo_visual");
 
-    if(modoMovilGuardado === "true"){
-        document.body.classList.add("modo-movil");
-        btnMovil.innerHTML = "💻 Modo PC";
-    }
+if(modoVisual === "movil"){
+    document.body.classList.add("modo-movil");
+    btnMovil.innerHTML = "💻 Modo PC";
+}else{
+    document.body.classList.remove("modo-movil");
+    btnMovil.innerHTML = "📱 Modo móvil";
+    document.querySelector(".sidebar").classList.remove("activo");
 }
 
 // Cargar guardados según configuración
