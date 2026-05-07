@@ -52,7 +52,7 @@ body{
 .background-img{
     position:absolute;
     inset:0;
-    background-image:url("fondo.jpg");
+    background-image:url("fondoShadow.png");
     background-size:cover;
     background-position:center;
     opacity:0.18;
@@ -1269,7 +1269,8 @@ let usuariosVisibles = [
     "narigod",
     "serberus326",
     "mattuu_arg.1",
-    "fap_god"
+    "fap_god",
+    "JUANCHO"
 ];
 
 
@@ -1320,6 +1321,8 @@ if(inicioComentarios !== -1){
     let nivelBase = 1;
     let nivelReply = 3;
 
+    let usuarioActual = ""; // ✅ usuario especial detectado
+
     for(let i = inicioComentarios + 1; i < lineas.length; i++){
         let raw = lineas[i];
         let linea = raw.trim();
@@ -1343,78 +1346,67 @@ if(inicioComentarios !== -1){
         if(linea === "") continue;
 
         if(!leyendoComentario){
-            if(esperandoPrimerUsuario){
-                if(
-                    lower.startsWith("ver todo") ||
-                    lower.startsWith("tablero") ||
-                    lower.startsWith("editar perfil") ||
-                    lower.startsWith("cerrar sesión") ||
-                    lower.startsWith("sesión iniciada") ||
-                    lower.startsWith("ordenar por") ||
-                    lower.match(/^\+\d+/)
-                ) continue;
+    if(esperandoPrimerUsuario){
+        if(
+            lower.startsWith("ver todo") ||
+            lower.startsWith("tablero") ||
+            lower.startsWith("editar perfil") ||
+            lower.startsWith("cerrar sesión") ||
+            lower.startsWith("sesión iniciada") ||
+            lower.startsWith("ordenar por") ||
+            lower.match(/^\+\d+/)
+        ) continue;
 
-                esperandoPrimerUsuario = false;
-            }
-            comentarioActual = raw + "\n"; // 🔥 guardamos la primera línea
-            leyendoComentario = true;
-            continue;
-        }
+        esperandoPrimerUsuario = false;
+    }
+
+    // ✅ Detectar si esta línea pertenece a un usuario especial
+    // Ejemplo: Mattuu_Arg.1106p· hace 39 semanas
+    let encontrado = usuariosVisibles.find(u =>
+        lower.startsWith(u.toLowerCase())
+    );
+
+    if(encontrado){
+        usuarioActual = encontrado;
+    }else{
+        usuarioActual = "";
+    }
+
+    comentarioActual = "";
+    leyendoComentario = true;
+    continue;
+}
 
         comentarioActual += raw + "\n";
 
         let siguiente = (lineasLimpias[i + 1] || "").toLowerCase();
-
-	    if(
-              siguiente.includes("responder") ||
-              siguiente.match(/^\+\d+/)
-            ){
+        if(siguiente === "responder" || siguiente.match(/^\+\d+/)){
             let nivelFinal = nivelBase;
             if(repliesPendientes > 0){
                 nivelFinal = nivelReply;
                 nivelReply += 2;
                 repliesPendientes--;
             }
-	  
+            comentarios.push({
+              texto: comentarioActual.trim(), 
+              nivel: nivelFinal,
+              usuario: usuarioActual || null
+           });
 
-            let lineasCom = comentarioActual.trim().split("\n");
+            usuarioActual = "";
 
-           // detectar usuario (primera línea)
-           let primeraLinea = (lineasCom[0] || "").trim();
-
-	   // eliminar likes + fecha completa
-              primeraLinea = primeraLinea
-             .replace(/\d+\s*p.*$/i,"")   // elimina 1105p · hace...
-             .replace(/·.*$/i,"")         // elimina todo después del punto medio
-             .replace(/hace.*$/i,"")      // elimina fecha si quedó
-             .trim();
-
-           let posibleUsuario = primeraLinea.toLowerCase();
-
-	   let usuario = "";
-
-           let encontrado = usuariosVisibles.find(u => u.toLowerCase() === posibleUsuario);
-
-           if(encontrado){
-              lineasCom.shift();      // quitar línea original
-              usuario = primeraLinea; // usar versión limpia
-           }
-
-           comentarios.push({ 
-           texto: lineasCom.join("\n").trim(), 
-           nivel: nivelFinal,
-           usuario: usuario
-         });
-
-
-          comentarioActual = "";
-          leyendoComentario = false;
+            comentarioActual = "";
+            leyendoComentario = false;
         }
     }
 
     if(comentarioActual.trim() !== ""){
-        comentarios.push({ texto: comentarioActual.trim(), nivel: nivelBase });
-    }
+    comentarios.push({ 
+        texto: comentarioActual.trim(), 
+        nivel: nivelBase,
+        usuario: usuarioActual || null
+    });
+}
 }
 
 /* ======================= */
@@ -1425,6 +1417,7 @@ let comentariosFormateados = comentarios.map(c =>
     (c.usuario ? c.usuario + "<br>" : "") +
     "_".repeat(c.nivel) + c.texto
 );
+
 
 /* ======================= */
 /* ANALISIS NTR (CORREGIDO) */
@@ -2690,6 +2683,15 @@ menuBtn.onclick = function(){
 
 
 
+function copiar(){
+    if(!ultimoResultadoHTML || ultimoResultadoHTML.trim() === ""){
+        alert("No hay resultado para copiar.");
+        return;
+    }
+
+    copiarHTML(ultimoResultadoHTML, "Resultado copiado.");
+}
+
 function copiarManhwasHot(){
     copiarListaGuardada(listaManhwasHot, "Manhwas Hot");
 }
@@ -2709,28 +2711,63 @@ function copiarListaGuardada(lista, nombre){
         return;
     }
 
-    const temp = document.createElement("div");
+    let html = lista.join("<br><br>");
 
-    temp.style.position = "fixed";
-    temp.style.left = "-9999px";
-    temp.style.top = "0";
-    temp.innerHTML = lista.join("<br><br>");
+    copiarHTML(html, nombre + " copiados.");
+}
 
-    document.body.appendChild(temp);
+async function copiarHTML(html, mensaje){
 
-    const range = document.createRange();
-    range.selectNodeContents(temp);
+    // ✅ Asegura que los títulos mantengan tamaño al copiar
+    html = html.replace(
+        /font-size:\s*27px\s*;?\s*font-weight:\s*bold\s*;?/gi,
+        "font-size:27px;font-weight:bold;"
+    );
 
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+    // ✅ Convertir HTML a texto plano como respaldo
+    const tempTexto = document.createElement("div");
+    tempTexto.innerHTML = html;
+    const textoPlano = tempTexto.innerText;
 
-    document.execCommand("copy");
+    try{
+        // ✅ Copia como HTML real
+        const blobHTML = new Blob([html], { type: "text/html" });
+        const blobTexto = new Blob([textoPlano], { type: "text/plain" });
 
-    selection.removeAllRanges();
-    document.body.removeChild(temp);
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                "text/html": blobHTML,
+                "text/plain": blobTexto
+            })
+        ]);
 
-    alert(nombre + " copiados.");
+        alert(mensaje);
+    }catch(error){
+
+        // ✅ Respaldo por si el navegador bloquea clipboard.write
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+
+        temp.style.position = "fixed";
+        temp.style.left = "-9999px";
+        temp.style.top = "0";
+
+        document.body.appendChild(temp);
+
+        const range = document.createRange();
+        range.selectNodeContents(temp);
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        document.execCommand("copy");
+
+        selection.removeAllRanges();
+        document.body.removeChild(temp);
+
+        alert(mensaje);
+    }
 }
 
 
