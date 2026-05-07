@@ -1910,7 +1910,7 @@ if(inputFondoArchivo){
         }
 
         /// Evita guardar imágenes demasiado pesadas
-if(archivo.size > 5 * 1024 * 1024){
+if(archivo.size > 10 * 1024 * 1024){
     alert("La imagen es muy pesada. Usa una imagen menor de 10 MB.");
     this.value = "";
     return;
