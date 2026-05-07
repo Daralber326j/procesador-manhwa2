@@ -792,6 +792,23 @@ body.modo-movil #btnToggleGuardados{
     padding:16px;
 }
 
+/* =========================
+   EVITAR SELECCIÓN EN BOTÓN VER FONDO
+========================= */
+
+#btnVerFondo{
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+    touch-action:none;
+}
+
+#btnVerFondo *{
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+}
+
 </style>
 
 </head>
@@ -1069,33 +1086,39 @@ btnActualizarMovil.onclick = function(){
 
 /* ===== VER FONDO MIENTRAS SE MANTIENE ===== */
 
-const btnVerFondo =
-    document.getElementById("btnVerFondo");
+/* ===== VER FONDO MIENTRAS SE MANTIENE ===== */
 
-btnVerFondo.addEventListener("touchstart", function(){
+const btnVerFondo = document.getElementById("btnVerFondo");
 
-    panelAvanzado.classList.add("ver-fondo");
-
-});
-
-btnVerFondo.addEventListener("touchend", function(){
-
-    panelAvanzado.classList.remove("ver-fondo");
-
-});
-
-/* PC también */
-btnVerFondo.addEventListener("mousedown", function(){
+function activarVerFondo(e){
+    if(e){
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
     panelAvanzado.classList.add("ver-fondo");
+}
 
-});
-
-btnVerFondo.addEventListener("mouseup", function(){
+function desactivarVerFondo(e){
+    if(e){
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
     panelAvanzado.classList.remove("ver-fondo");
+}
 
+// ✅ Funciona en móvil y PC
+btnVerFondo.addEventListener("pointerdown", activarVerFondo);
+btnVerFondo.addEventListener("pointerup", desactivarVerFondo);
+btnVerFondo.addEventListener("pointercancel", desactivarVerFondo);
+btnVerFondo.addEventListener("pointerleave", desactivarVerFondo);
+
+// ✅ Evita menú de copiar / seleccionar al mantener pulsado
+btnVerFondo.addEventListener("contextmenu", function(e){
+    e.preventDefault();
 });
+
 
 function actualizarOpcionManhua(){
     const wrap = document.getElementById("opcionManhuaWrap");
@@ -1441,7 +1464,7 @@ function editarGuardado(tipo, id){
 
     alert("Guardado cargado para editar. Cambia lo que quieras, procesa y luego usa Guardar actual.");
 }
-``
+
 
 function borrarGuardado(tipo, id){
     if(!confirm("¿Seguro que quieres borrar este guardado?")) return;
