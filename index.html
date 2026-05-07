@@ -32,19 +32,11 @@
 }
 
 body{
-    min-height:100vh;
+    height:100vh;
     color:#ddd;
+    background:#0a0a0f;
     overflow:auto;
     position:relative;
-
-    background-image:
-        linear-gradient(rgba(10,10,15,0.70), rgba(10,10,15,0.70)),
-        url("fondoShadow.png");
-
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-attachment:fixed;
 }
 
 #salida{
@@ -57,13 +49,26 @@ body{
    FONDO IMAGEN REAL
 ========================= */
 
+
 .background-img{
-    display:none;
+    position:fixed;
+    inset:0;
+    background-image:url("fondoShadow.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    opacity:0.35;
+    z-index:0;
+    pointer-events:none;
 }
 
 
 .overlay-dark{
-    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.15);
+    z-index:1;
+    pointer-events:none;
 }
 
 .container,
@@ -645,6 +650,37 @@ body.modo-movil .middle-bar{
     border-radius:6px;
 }
 
+.panel-avanzado select{
+    width:100%;
+    padding:8px;
+    margin-bottom:12px;
+    background:#1f2937;
+    border:1px solid #333;
+    color:#fff;
+    border-radius:6px;
+}
+
+.link-extra-wrap{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px;
+}
+
+.link-extra-wrap input{
+    flex:1;
+}
+
+.btn-link-extra{
+    width:100%;
+    padding:10px;
+    margin-bottom:12px;
+    border-radius:10px;
+    border:1px solid var(--accent);
+    background:rgba(255,255,255,0.05);
+    color:white;
+    cursor:pointer;
+}
+
 /* =========================
    BOTÓN MODO AVANZADO
 ========================= */
@@ -896,7 +932,25 @@ body.avanzado-activo h1{
     <input type="text" id="editVideo" value="Video:">
     <input type="text" id="editTituloVideo" value="Título de video:">
     <input type="text" id="editEncontrado" value="Lo encontré en:">
-    <input type="text" id="editLeerAqui" placeholder="Link de lectura">
+
+<h4>Estado manual</h4>
+
+<select id="editEstadoManual">
+    <option value="auto">Automático</option>
+    <option value="emision">🟩 Emisión</option>
+    <option value="finalizado">🟨 Finalizado</option>
+</select>
+
+<h4>Links de lectura</h4>
+
+<input type="text" id="editLeerAqui" placeholder="Link de lectura 1">
+
+<div id="linksExtraContainer"></div>
+
+<button type="button" id="btnAgregarLink" class="btn-link-extra">
+    ➕ Agregar otro link
+</button>
+
 
 </div>
 
@@ -918,6 +972,11 @@ let listaManhwasNormales = [];
 let listaMangas = [];
 
 let ultimoResultadoHTML = "";
+
+
+// ✅ Sirve para saber si estás editando un guardado existente
+let itemEditando = null; // { tipo:"hot|normal|manga", id:"..." }
+
 
 document.getElementById("btnModoInteligente").onclick = function(){
 
@@ -1105,6 +1164,238 @@ function procesar(){
     }, 10);
 }
 
+/* ===============================
+   MEMORIA TEMPORAL
+   Se borra al recargar la página
+=============================== */
+
+function cargarMemoriaGuardados(){
+    // Al recargar la página, las listas empiezan vacías
+    listaManhwasHot = [];
+    listaManhwasNormales = [];
+    listaMangas = [];
+
+    actualizarContadoresGuardados();
+    renderizarGuardados();
+}
+
+function guardarMemoria(tipo){
+    // No guardamos en localStorage ni sessionStorage
+    // Así todo se borra al recargar la página
+}
+
+function obtenerListaPorTipo(tipo){
+    if(tipo === "hot") return listaManhwasHot;
+    if(tipo === "normal") return listaManhwasNormales;
+    if(tipo === "manga") return listaMangas;
+    return [];
+}
+
+function obtenerContenedorPorTipo(tipo){
+    if(tipo === "hot") return document.getElementById("guardados-hot");
+    if(tipo === "normal") return document.getElementById("guardados-normal");
+    if(tipo === "manga") return document.getElementById("guardados-manga");
+    return null;
+}
+
+function actualizarContadoresGuardados(){
+    document.getElementById("count-hot").textContent = listaManhwasHot.length;
+    document.getElementById("count-normal").textContent = listaManhwasNormales.length;
+    document.getElementById("count-manga").textContent = listaMangas.length;
+}
+
+
+/* ===============================
+   GUARDAR ESTADO DEL PANEL AVANZADO
+=============================== */
+
+function obtenerSnapshotActual(resultadoHTML){
+    return {
+        id: Date.now().toString() + "_" + Math.random().toString(16).slice(2),
+        modo: modoActual,
+        html: resultadoHTML,
+        entrada: document.getElementById("entrada").value,
+
+        panel: {
+            titulo: document.getElementById("editTitulo").value,
+            sinopsis: document.getElementById("editSinopsis").value,
+            canal: document.getElementById("editCanal").value,
+            video: document.getElementById("editVideo").value,
+            tituloVideo: document.getElementById("editTituloVideo").value,
+            encontrado: document.getElementById("editEncontrado").value,
+            estadoManual: document.getElementById("editEstadoManual")?.value || "auto",
+            linkPrincipal: document.getElementById("editLeerAqui").value,
+            linksExtra: Array.from(document.querySelectorAll(".linkLecturaExtra")).map(input => input.value)
+        }
+    };
+}
+
+function escaparHTML(valor){
+    return String(valor || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function restaurarSnapshot(item){
+    if(!item) return;
+
+    modoActual = item.modo || modoActual;
+
+    document.getElementById("entrada").value = item.entrada || "";
+
+    if(item.panel){
+        document.getElementById("editTitulo").value = item.panel.titulo || "";
+        document.getElementById("editSinopsis").value = item.panel.sinopsis || "Sipnosis:";
+        document.getElementById("editCanal").value = item.panel.canal || "Canal:";
+        document.getElementById("editVideo").value = item.panel.video || "Video:";
+        document.getElementById("editTituloVideo").value = item.panel.tituloVideo || "Título de video:";
+        document.getElementById("editEncontrado").value = item.panel.encontrado || "Lo encontré en:";
+
+        if(document.getElementById("editEstadoManual")){
+            document.getElementById("editEstadoManual").value = item.panel.estadoManual || "auto";
+        }
+
+        document.getElementById("editLeerAqui").value = item.panel.linkPrincipal || "";
+
+        const contenedorLinks = document.getElementById("linksExtraContainer");
+        contenedorLinks.innerHTML = "";
+
+        (item.panel.linksExtra || []).forEach((link, index) => {
+            const wrap = document.createElement("div");
+            wrap.className = "link-extra-wrap";
+
+            wrap.innerHTML = `
+                <input type="text" class="linkLecturaExtra" placeholder="Link de lectura ${index + 2}" value="${escaparHTML(link)}">
+                <button type="button" class="btn" style="padding:8px 12px;" onclick="this.parentElement.remove(); actualizarBotonAgregarLink();">
+                    ✕
+                </button>
+            `;
+
+            contenedorLinks.appendChild(wrap);
+        });
+
+        actualizarBotonAgregarLink();
+    }
+
+    ultimoResultadoHTML = item.html || "";
+    document.getElementById("salida").innerHTML = ultimoResultadoHTML;
+}
+
+/* ===============================
+   MOSTRAR GUARDADOS
+=============================== */
+
+function obtenerTituloGuardado(html){
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+
+    const texto = temp.innerText.trim();
+
+    if(texto === ""){
+        return "Sin título";
+    }
+
+    return texto.split("\n")[0].slice(0, 80);
+}
+
+function renderizarGuardados(){
+    renderizarGuardadosPorTipo("hot");
+    renderizarGuardadosPorTipo("normal");
+    renderizarGuardadosPorTipo("manga");
+}
+
+function renderizarGuardadosPorTipo(tipo){
+    const contenedor = obtenerContenedorPorTipo(tipo);
+    const lista = obtenerListaPorTipo(tipo);
+
+    if(!contenedor) return;
+
+    contenedor.innerHTML = "";
+
+    if(lista.length === 0){
+        contenedor.innerHTML = "<div style='opacity:0.65;'>No hay guardados.</div>";
+        return;
+    }
+
+    lista.forEach(item => {
+        contenedor.innerHTML += `
+            <div class="resultado-item" style="
+                padding:15px;
+                margin-bottom:15px;
+                border:1px solid var(--accent);
+                border-radius:14px;
+                background:rgba(255,255,255,0.04);
+            ">
+
+                <div style="
+                    display:flex;
+                    flex-wrap:wrap;
+                    gap:8px;
+                    margin-bottom:15px;
+                ">
+                    <button class="btn" onclick="editarGuardado('${tipo}', '${item.id}')">
+                        ✏️ Editar
+                    </button>
+
+                    <button class="btn" onclick="borrarGuardado('${tipo}', '${item.id}')">
+                        🗑 Borrar
+                    </button>
+                </div>
+
+                <div class="contenido-guardado">
+                    ${item.html}
+                </div>
+
+            </div>
+        `;
+    });
+}
+
+function buscarGuardado(tipo, id){
+    return obtenerListaPorTipo(tipo).find(item => item.id === id);
+}
+
+function editarGuardado(tipo, id){
+    const item = buscarGuardado(tipo, id);
+
+    if(!item){
+        alert("No se encontró este guardado.");
+        return;
+    }
+
+    restaurarSnapshot(item);
+
+    itemEditando = {
+        tipo: tipo,
+        id: id
+    };
+
+    panelAvanzado.classList.add("activo");
+    document.body.classList.add("avanzado-activo");
+
+    alert("Guardado cargado para editar. Cambia lo que quieras, procesa y luego usa Guardar actual.");
+}
+``
+
+function borrarGuardado(tipo, id){
+    if(!confirm("¿Seguro que quieres borrar este guardado?")) return;
+
+    let lista = obtenerListaPorTipo(tipo);
+    const index = lista.findIndex(item => item.id === id);
+
+    if(index !== -1){
+        lista.splice(index, 1);
+    }
+
+    guardarMemoria(tipo);
+    actualizarContadoresGuardados();
+    renderizarGuardados();
+
+    alert("Guardado borrado.");
+}
+
 // ✅✅✅ AQUÍ EMPIEZA LA FUNCIÓN NUEVA ✅✅✅
 function guardarResultado(resultadoHTML){
 
@@ -1113,53 +1404,56 @@ function guardarResultado(resultadoHTML){
         return;
     }
 
-    let contenedor = null;
+    let tipo = null;
     let listaDestino = null;
-    let contador = null;
 
     if(modoActual === "hot"){
+        tipo = "hot";
         listaDestino = listaManhwasHot;
-        contenedor = document.getElementById("guardados-hot");
-        contador = document.getElementById("count-hot");
     }
-
     else if(modoActual === "normal"){
+        tipo = "normal";
         listaDestino = listaManhwasNormales;
-        contenedor = document.getElementById("guardados-normal");
-        contador = document.getElementById("count-normal");
     }
-
     else if(modoActual === "manga"){
+        tipo = "manga";
         listaDestino = listaMangas;
-        contenedor = document.getElementById("guardados-manga");
-        contador = document.getElementById("count-manga");
     }
-
     else{
         alert("Este modo no tiene apartado de guardado.");
         return;
     }
 
-    // Evita guardar el mismo resultado repetido por accidente
-    if(listaDestino.includes(resultadoHTML)){
+    let snapshot = obtenerSnapshotActual(resultadoHTML);
+
+    // ✅ Si estás editando un guardado existente, actualizarlo
+    if(itemEditando && itemEditando.tipo === tipo){
+        const index = listaDestino.findIndex(item => item.id === itemEditando.id);
+
+        if(index !== -1){
+            snapshot.id = itemEditando.id;
+            listaDestino[index] = snapshot;
+
+            actualizarContadoresGuardados();
+            renderizarGuardados();
+
+            itemEditando = null;
+
+            alert("Guardado actualizado correctamente.");
+            return;
+        }
+    }
+
+    // ✅ Evitar duplicados exactos
+    if(listaDestino.some(item => item.html === resultadoHTML)){
         alert("Este resultado ya está guardado en este apartado.");
         return;
     }
 
-    listaDestino.push(resultadoHTML);
-    contador.textContent = listaDestino.length;
+    listaDestino.push(snapshot);
 
-    contenedor.innerHTML += `
-        <div class="resultado-item" style="
-            padding:15px;
-            margin-bottom:15px;
-            border:1px solid var(--accent);
-            border-radius:14px;
-            background:rgba(255,255,255,0.04);
-        ">
-            ${resultadoHTML}
-        </div>
-    `;
+    actualizarContadoresGuardados();
+    renderizarGuardados();
 
     alert("Guardado correctamente.");
 }
@@ -1216,6 +1510,10 @@ function limpiar(){
     document.getElementById("editTituloVideo").value = "Título de video:";
     document.getElementById("editEncontrado").value = "Lo encontré en:";
     document.getElementById("editLeerAqui").value = "";
+
+    document.getElementById("editEstadoManual").value = "auto";
+    document.getElementById("linksExtraContainer").innerHTML = "";
+    actualizarBotonAgregarLink();
 }
 
 
@@ -1251,6 +1549,129 @@ function obtenerTitulo(){
     }
 
     return titulo;
+}
+
+/* ======================= */
+/* ESTADO MANUAL */
+/* ======================= */
+
+function obtenerEstadoFinal(estadoDetectado){
+    const manual = document.getElementById("editEstadoManual")?.value || "auto";
+
+    if(manual === "emision"){
+        return "emision";
+    }
+
+    if(manual === "finalizado"){
+        return "finalizado";
+    }
+
+    if(estadoDetectado && estadoDetectado.toLowerCase() === "finalizado"){
+        return "finalizado";
+    }
+
+    return "emision";
+}
+
+/* ======================= */
+/* LINKS DE LECTURA */
+/* ======================= */
+
+function normalizarLink(link){
+    link = link.trim();
+
+    if(link === ""){
+        return "";
+    }
+
+    if(!link.startsWith("http://") && !link.startsWith("https://")){
+        link = "https://" + link;
+    }
+
+    return link;
+}
+
+function obtenerLinksLectura(){
+    let links = [];
+
+    let principal = document.getElementById("editLeerAqui").value.trim();
+
+    if(principal !== ""){
+        links.push(normalizarLink(principal));
+    }
+
+    document.querySelectorAll(".linkLecturaExtra").forEach(input => {
+        let link = input.value.trim();
+
+        if(link !== ""){
+            links.push(normalizarLink(link));
+        }
+    });
+
+    return links.slice(0, 6);
+}
+
+function generarHTMLLectura(){
+    let links = obtenerLinksLectura();
+
+    // Sin links
+    if(links.length === 0){
+        return "<strong>Leer aquí:</strong><br><br>";
+    }
+
+    let html = "";
+
+    // Primer link
+    html += "<strong>Leer aquí:</strong> " +
+        "<a href='" + links[0] + "'>" + links[0] + "</a><br><br>";
+
+    // Links siguientes (una línea vacía entre ellos)
+    for(let i = 1; i < links.length; i++){
+        html +=
+            "<a href='" + links[i] + "'>" + links[i] + "</a><br><br>";
+    }
+
+    return html;
+}
+
+function actualizarBotonAgregarLink(){
+    const total = document.querySelectorAll(".linkLecturaExtra").length + 1;
+    const btn = document.getElementById("btnAgregarLink");
+
+    if(!btn) return;
+
+    if(total >= 6){
+        btn.style.display = "none";
+    }else{
+        btn.style.display = "block";
+    }
+}
+
+function agregarLinkLectura(){
+    const contenedor = document.getElementById("linksExtraContainer");
+
+    const totalActual = document.querySelectorAll(".linkLecturaExtra").length + 1;
+
+    if(totalActual >= 6){
+        alert("Máximo 6 links de lectura.");
+        return;
+    }
+
+    const nuevoNumero = totalActual + 1;
+
+    const wrap = document.createElement("div");
+    wrap.className = "link-extra-wrap";
+
+    wrap.innerHTML = `
+        <input type="text" class="linkLecturaExtra" placeholder="Link de lectura ${nuevoNumero}">
+        <button type="button" class="btn" style="padding:8px 12px;" onclick="this.parentElement.remove(); actualizarBotonAgregarLink();">
+            ✕
+        </button>
+    `;
+
+    contenedor.appendChild(wrap);
+
+    actualizarBotonAgregarLink();
 }
 
 function formatear(){
@@ -1484,18 +1905,14 @@ if(document.getElementById("chkSinopsis").checked){
     resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
 }
 
-let leerAqui = document.getElementById("editLeerAqui").value.trim();
+resultado += generarHTMLLectura();
 
-if(leerAqui !== ""){
-    resultado += "<div><strong>Leer aquí:</strong> <a href='" + leerAqui + "' target='_blank'>" + leerAqui + "</a></div><br>";
-}else{
-    resultado += "<div><strong>Leer aquí:</strong></div><br>";
-}
+resultado += "<strong>Comentarios:</strong><br><br>";
+resultado += comentariosFormateados.join("<br><br>") + "<br>";
 
-resultado += "<div><strong>Comentarios:</strong></div><br>";
-resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+let estadoFinal = obtenerEstadoFinal(estado);
 
-if(estado && estado.toLowerCase() === "finalizado"){
+if(estadoFinal === "finalizado"){
 
     let resumenFinal = "🟨 Esta finalizado";
 
@@ -1720,22 +2137,14 @@ if(document.getElementById("chkSinopsis").checked){
     resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
 }
 
-let leerAqui = document.getElementById("editLeerAqui").value.trim();
+resultado += generarHTMLLectura();
 
-if(leerAqui !== ""){
-    if(!leerAqui.startsWith("http")){
-        leerAqui = "https://" + leerAqui;
-    }
+resultado += "<strong>Comentarios:</strong><br><br>";
+resultado += comentariosFormateados.join("<br><br>") + "<br>";
 
-    resultado += "<div><strong>Leer aquí:</strong> <a href='" + leerAqui + "' target='_blank'>" + leerAqui + "</a></div><br>";
-}else{
-    resultado += "<div><strong>Leer aquí:</strong></div><br>";
-}
+let estadoFinal = obtenerEstadoFinal(estado);
+if(estadoFinal === "finalizado"){
 
-resultado += "<div><strong>Comentarios:</strong></div><br>";
-resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
-
-if(estado && estado.toLowerCase() === "finalizado"){
     resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
 }else{
     resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
@@ -1938,23 +2347,18 @@ if(document.getElementById("chkCanal").checked){
     resultado += "<div><strong>" + document.getElementById("editCanal").value + "</strong> </div><br>";
 }
 
-let leerAqui = document.getElementById("editLeerAqui").value.trim();
-
-if(leerAqui !== ""){
-    resultado += "<div><strong>Leer aquí:</strong> <a href='" + leerAqui + "' target='_blank'>" + leerAqui + "</a></div><br>";
-}else{
-    resultado += "<div>Leer aquí:</div><br><br>";
-}
+resultado += generarHTMLLectura();
 
 if(document.getElementById("chkSinopsis").checked){
     resultado += "<div><strong>" + document.getElementById("editSinopsis").value + "</strong></div>";
     resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
 }
 
-resultado += "<div><strong>Comentarios:</strong></div><br>";
-resultado += "<div>" + comentariosFormateados.join("<br><br>") + "</div><br>";
+resultado += "<strong>Comentarios:</strong><br><br>";
+resultado += comentariosFormateados.join("<br><br>") + "<br>";
 
-if(estado && estado.toLowerCase() === "finalizado"){
+let estadoFinal = obtenerEstadoFinal(estado);
+if(estadoFinal === "finalizado"){
     resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
 }else{
     resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
@@ -2347,25 +2751,13 @@ if (modoActual === "normal") {
         "</div><br>";
     }
 
-    let leerAqui = document.getElementById("editLeerAqui").value.trim();
-
-    if (leerAqui !== "") {
-        if (!leerAqui.startsWith("http")) {
-            leerAqui = "https://" + leerAqui;
-        }
-
-        resultado += "<div><strong>Leer aquí:</strong> " +
-            "<a href='" + leerAqui + "' target='_blank'>" +
-            leerAqui +
-            "</a></div><br>";
-    } else {
-        resultado += "<div><strong>Leer aquí:</strong></div><br>";
-    }
+    resultado += generarHTMLLectura();
 
     resultado += "<div><strong>Comentarios:</strong></div><br>";
     resultado += "<div></div><br>";
 
-    if (estado && estado.toLowerCase() === "finalizado") {
+    let estadoFinal = obtenerEstadoFinal(estado);
+    if (estadoFinal === "finalizado") {
         resultado += "<div><strong>🟨 Finalizado ( "
             + totalCapitulos +
         " capitulos )</strong></div><br>";
@@ -2409,12 +2801,7 @@ if (document.getElementById("chkCanal").checked) {
 }
 
 /* ===== LEER AQUÍ ===== */
-let leerAqui = document.getElementById("editLeerAqui").value.trim();
-if (leerAqui !== "") {
-    resultado += "<div><strong>Leer aquí:</strong> " + leerAqui + "</div><br>";
-} else {
-    resultado += "<div>Leer aquí:</div><br><br>";
-}
+resultado += generarHTMLLectura();
 
 /* ===== SINOPSIS ===== */
 if (document.getElementById("chkSinopsis").checked && sinopsis !== "") {
@@ -2686,6 +3073,15 @@ menuBtn.onclick = function(){
     sidebar.classList.toggle("activo");
 };
 
+const btnAgregarLink = document.getElementById("btnAgregarLink");
+
+if(btnAgregarLink){
+    btnAgregarLink.onclick = agregarLinkLectura;
+}
+
+// Al abrir la página empieza vacío
+cargarMemoriaGuardados();
+
 });
 
 
@@ -2718,7 +3114,7 @@ function copiarListaGuardada(lista, nombre){
         return;
     }
 
-    let html = lista.join("<br><br>");
+    let html = lista.map(item => item.html).join("<br><br>");
 
     copiarHTML(html, nombre + " copiados.");
 }
