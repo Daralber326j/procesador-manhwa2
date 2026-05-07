@@ -1054,6 +1054,23 @@ body.modo-movil.modo-compacto textarea{
     height:280px;
 }
 
+/* =========================
+   SEGUNDO CUADRO YOUTUBE
+========================= */
+
+.youtube-sub-box{
+    flex:0.6;
+}
+
+.youtube-sub-box textarea{
+    min-height:180px;
+}
+
+body.modo-movil .youtube-sub-box textarea{
+    height:240px;
+    font-size:16px;
+}
+
 </style>
 
 </head>
@@ -1124,6 +1141,10 @@ body.modo-movil.modo-compacto textarea{
 
 <div class="box">
 <textarea id="entrada" placeholder="Pega aquí el texto..."></textarea>
+</div>
+
+<div class="box youtube-sub-box" id="youtubeSubBox" style="display:none;">
+    <textarea id="entradaYoutubeSub" placeholder="Pega aquí el sub-bloque de respuestas de YouTube si existe..."></textarea>
 </div>
 
 <!-- ===============================
@@ -2082,6 +2103,7 @@ function cambiarModo(modo, color, element){
     }
 
    actualizarOpcionManhua();
+   actualizarCuadroYoutube();
 }
 
 /* ===== TEMA VISUAL ===== */
@@ -2270,6 +2292,7 @@ function restaurarSnapshot(item){
       }
 
        actualizarOpcionManhua();
+       actualizarCuadroYoutube();
 
         document.getElementById("editLeerAqui").value = item.panel.linkPrincipal || "";
 
@@ -2512,6 +2535,13 @@ function limpiar(){
 
     // 🔹 Limpiar entrada
     document.getElementById("entrada").value = "";
+
+    // 🔹 Limpiar segundo cuadro de YouTube
+    const entradaYoutubeSub = document.getElementById("entradaYoutubeSub");
+
+    if(entradaYoutubeSub){
+        entradaYoutubeSub.value = "";
+    }
 
     // 🔹 Limpiar resultado mostrado
     document.getElementById("salida").innerHTML = "";
@@ -3870,105 +3900,186 @@ document.getElementById("salida").innerHTML = resultado;
 /* ====================== */
 
 function formatearYouTube(){
-    const texto = document.getElementById("entrada").value;
 
-    const lineas = texto
-        .replace(/&nbsp;|&amp;nbsp;/g, " ")
-        .split("\n")
-        .map(l => l.trim())
-        .filter(l => l !== "");
+    const texto1 = document.getElementById("entrada").value || "";
+    const texto2 = document.getElementById("entradaYoutubeSub")?.value || "";
 
-    const palabrasTiempo = [
-        "segundo","segundos","minuto","minutos","hora","horas",
-        "día","días","semana","semanas","mes","meses","año","años",
-        "second","seconds","minute","minutes","hour","hours",
-        "day","days","week","weeks","month","months","year","years",
-        "ago","hace","editado"
-    ];
-
-    const esFecha = l =>
-        palabrasTiempo.some(p => l.toLowerCase().includes(p));
-
-    const esNumeroAislado = l => /^[0-9]+$/.test(l);
-
-    // ===== 1. EXTRAER BLOQUES =====
-    let bloques = [];
-    let i = 0;
-
-    while(i < lineas.length){
-
-        // @usuario
-        if(lineas[i].startsWith("@")) i++;
-
-        // fecha
-        if(i < lineas.length && esFecha(lineas[i])) i++;
-
-        let textoComentario = [];
-
-        while(
-            i < lineas.length &&
-            !esNumeroAislado(lineas[i]) &&
-            lineas[i].toLowerCase() !== "responder"
-        ){
-            textoComentario.push(lineas[i]);
-            i++;
-        }
-
-        // saltar likes + responder
-        if(esNumeroAislado(lineas[i]) && lineas[i+1]?.toLowerCase() === "responder"){
-            i += 2;
-        }else if(lineas[i]?.toLowerCase() === "responder"){
-            i++;
-        }
-
-        bloques.push(textoComentario.join(" "));
+    function limpiarLineas(txt){
+        return String(txt)
+            .replace(/&nbsp;/g," ")
+            .split("\n")
+            .map(l=>l.trim())
+            .filter(l=>l!=="");
     }
 
-    // ===== 2. CLASIFICAR BASE / RESPUESTAS =====
-    let resultado = [];
-    let idx = 0;
+    const l1 = limpiarLineas(texto1);
+    const l2 = limpiarLineas(texto2);
 
-    while(idx < bloques.length){
+    const palabrasTiempo = ["hace","segundo","minuto","hora","día","semana","mes","año"];
 
-        const base = bloques[idx];
-        let respuestas = [];
+    function esUsuario(l){ return /^@\S+/.test(l); }
+    function esFecha(l){ return palabrasTiempo.some(p=>l.toLowerCase().includes(p)); }
+    function esNumero(l){ return /^\d+$/.test(l); }
+    function esResponder(l){ return l.toLowerCase()==="responder"; }
+    function esCerrar(l){ return l.toLowerCase()==="ocultar respuestas"; }
+    function esLineaRespuestas(l){ return /^(\d+)\s+respuestas?$/i.test(l); }
+    function numRes(l){ let m=l.match(/^(\d+)\s+respuestas?$/i); return m?parseInt(m[1]):0; }
 
-        // mirar si MÁS ADELANTE hay "Ocultar respuestas"
-        let hayOcultar = lineas.slice(idx).some(l => l.toLowerCase() === "ocultar respuestas");
+    /* ===============================
+       EXTRAER BASES DESDE CUADRO 1
+    ================================ */
 
-        if(hayOcultar){
-            let j = idx + 1;
-            while(
-                j < bloques.length &&
-                lineas.slice(j).some(l => l.toLowerCase() !== "ocultar respuestas")
-            ){
-                respuestas.push(bloques[j]);
-                j++;
+    function extraerBases(lineas){
+
+        let bases=[];
+        let i=0;
+
+        while(i<lineas.length){
+
+            if(!esUsuario(lineas[i])){ i++; continue; }
+
+            let usuario=lineas[i++];
+            if(i<lineas.length && esFecha(lineas[i])) i++;
+
+            let texto=[];
+            while(i<lineas.length){
+
+                if(esNumero(lineas[i]) && i+1<lineas.length && esResponder(lineas[i+1])){
+                    i+=2;
+                    break;
+                }
+
+                if(esUsuario(lineas[i])) break;
+
+                texto.push(lineas[i]);
+                i++;
             }
-            idx = j + 1;
-        }else{
-            idx++;
+
+            let cantidad=0;
+
+            if(i<lineas.length && esLineaRespuestas(lineas[i])){
+                cantidad=numRes(lineas[i]);
+                i++;
+            }
+
+            bases.push({
+                usuario,
+                texto:texto.join(" ").trim(),
+                cantidad,
+                hijos:[]
+            });
         }
 
-        resultado.push({ base, respuestas });
+        return bases;
     }
 
-    // ===== 3. FORMATO FINAL =====
-    let salida = [];
+    const bases = extraerBases(l1);
 
-    resultado.forEach(grupo => {
-        salida.push("_ " + grupo.base);
-        let nivel = 2;
-        grupo.respuestas.forEach(r => {
-            salida.push("_".repeat(nivel) + " " + r);
-            nivel += 2;
+    /* =====================================
+       MAPEAR RESPUESTAS DESDE CUADRO 2
+    ====================================== */
+
+    let baseActual=null;
+    let indiceBase=0;
+    let capturando=false;
+
+    let i=0;
+
+    while(i<l2.length){
+
+        let l=l2[i];
+
+        if(esUsuario(l)){
+
+            let usuario=l;
+            i++;
+            if(i<l2.length && esFecha(l2[i])) i++;
+
+            let texto=[];
+            while(i<l2.length){
+
+                if(esNumero(l2[i]) && i+1<l2.length && esResponder(l2[i+1])){
+                    i+=2;
+                    break;
+                }
+
+                if(esUsuario(l2[i]) || esCerrar(l2[i])) break;
+
+                texto.push(l2[i]);
+                i++;
+            }
+
+            let comentarioTexto=texto.join(" ").trim();
+
+            if(indiceBase<bases.length &&
+               comentarioTexto===bases[indiceBase].texto){
+
+                baseActual=bases[indiceBase];
+                capturando = baseActual.cantidad>0;
+                indiceBase++;
+                continue;
+            }
+
+            if(capturando && baseActual){
+                if(baseActual.hijos.length < baseActual.cantidad){
+                    baseActual.hijos.push({texto:comentarioTexto});
+                }
+            }
+
+            continue;
+        }
+
+        if(esCerrar(l)){
+            capturando=false;
+            baseActual=null;
+            i++;
+            continue;
+        }
+
+        i++;
+    }
+
+    /* ===============================
+       GENERAR SALIDA
+    ================================ */
+
+    let salida=[];
+    let inconsistencias=[];
+
+    bases.forEach(base=>{
+
+        let linea="_ "+base.texto;
+        if(base.cantidad>0) linea+=" ("+base.cantidad+")";
+        salida.push(linea);
+
+        let nivel=2;
+        base.hijos.forEach(h=>{
+            salida.push("_".repeat(nivel)+" "+h.texto);
+            nivel+=2;
         });
+
+        if(base.cantidad!==base.hijos.length){
+            if(base.cantidad>0){
+                inconsistencias.push(
+                    base.texto.slice(0,60)+"... | Declaradas: "+
+                    base.cantidad+" | Detectadas: "+base.hijos.length
+                );
+            }
+        }
     });
 
-    document.getElementById("salida").innerHTML =
-        "<div><strong>Comentarios de YouTube:</strong></div><br>" +
-        salida.join("<br><br>") +
-        "<br><div>______________________________________</div>";
+    let final="Comentarios de YouTube:\n\n"+salida.join("\n\n");
+
+    if(inconsistencias.length>0){
+        final+="\n\nInconsistencias:\n"+inconsistencias.join("\n");
+    }
+
+    final+="\n\n______________________________________";
+
+    document.getElementById("salida").innerHTML=
+        "<pre style='white-space:pre-wrap;font-family:Segoe UI;'>"+
+        final+
+        "</pre>";
 }
 
 /* ======================= */
@@ -4076,6 +4187,23 @@ document.getElementById("salida").innerHTML =
 
 }
 
+
+/* ======================= */
+/* CUADROS YOUTUBE */
+/* ======================= */
+
+function actualizarCuadroYoutube(){
+    const box = document.getElementById("youtubeSubBox");
+
+    if(!box) return;
+
+    if(modoActual === "youtube"){
+        box.style.display = "block";
+    }else{
+        box.style.display = "none";
+    }
+}
+
 /* =========================
    ACTIVAR MODO MOVIL
 ========================= */
@@ -4140,6 +4268,9 @@ cargarMemoriaGuardados();
 
 // Mostrar u ocultar opción Manhua según modo actual
 actualizarOpcionManhua();
+
+// Mostrar u ocultar segundo cuadro de YouTube
+actualizarCuadroYoutube();
 
 });
 
