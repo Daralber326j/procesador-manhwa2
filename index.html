@@ -759,6 +759,39 @@ body.avanzado-activo h1{
     box-shadow:0 0 15px #0f7d32;
 }
 
+/* =========================
+   BOTONES DE GUARDADOS
+========================= */
+
+.acciones-guardados{
+    margin-top:15px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+#btnToggleGuardados{
+    align-self:center;
+    margin-top:15px;
+}
+
+/* En modo móvil coinciden con Procesar / Limpiar / Pegar */
+body.modo-movil .acciones-guardados{
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+    margin-top:25px;
+}
+
+body.modo-movil .acciones-guardados .btn,
+body.modo-movil #btnToggleGuardados{
+    width:85%;
+    font-size:17px;
+    padding:16px;
+}
+
 </style>
 
 </head>
@@ -855,16 +888,15 @@ body.avanzado-activo h1{
 <div id="salida" class="salida-html"></div>
 </div>
 
-<div style="margin-top:15px;">
+<div class="acciones-guardados">
   <button class="btn" onclick="copiarManhwasHot()">Copiar Manhwas Hot</button>
   <button class="btn" onclick="copiarManhwas()">Copiar Manhwas</button>
   <button class="btn" onclick="copiarMangas()">Copiar Mangas</button>
 </div>
 
-
 <button class="btn" id="btnToggleGuardados" onclick="toggleGuardados()">
     📦 Ver guardados
-  </button>
+</button>
 
 
 <div id="guardados" style="display:none; margin-top:20px;">
