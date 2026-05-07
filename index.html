@@ -809,6 +809,251 @@ body.modo-movil #btnToggleGuardados{
     -webkit-touch-callout:none;
 }
 
+/* =========================
+   BOTÓN CONFIGURACIÓN SIDEBAR
+========================= */
+
+.sidebar{
+    display:flex;
+    flex-direction:column;
+}
+
+.sidebar-bottom{
+    margin-top:auto;
+    padding-top:20px;
+}
+
+.sidebar-bottom .menu-btn{
+    margin-bottom:0;
+}
+
+.config-btn{
+    border:1px solid rgba(255,255,255,0.12);
+}
+
+/* =========================
+   PANEL CONFIGURACIÓN
+========================= */
+
+.config-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    opacity:0;
+    pointer-events:none;
+    transition:0.25s;
+    z-index:1200;
+}
+
+.config-overlay.activo{
+    opacity:1;
+    pointer-events:auto;
+}
+
+.panel-configuracion{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%) scale(0.96);
+    width:90%;
+    max-width:760px;
+    max-height:88vh;
+    overflow-y:auto;
+
+    background:rgba(17,24,39,0.96);
+    border:1px solid var(--accent);
+    border-radius:24px;
+    padding:28px;
+
+    box-shadow:
+        0 0 35px rgba(0,0,0,0.6),
+        0 0 20px var(--accent);
+
+    opacity:0;
+    pointer-events:none;
+    transition:0.25s;
+    z-index:1300;
+}
+
+.panel-configuracion.activo{
+    opacity:1;
+    pointer-events:auto;
+    transform:translate(-50%, -50%) scale(1);
+}
+
+.cerrar-config{
+    font-size:30px;
+    cursor:pointer;
+    color:white;
+    margin-bottom:12px;
+    width:max-content;
+}
+
+.panel-configuracion h2{
+    color:var(--accent);
+    margin-bottom:10px;
+}
+
+.config-save-label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:16px;
+    margin-bottom:10px;
+}
+
+.config-colores{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
+    gap:18px;
+}
+
+.config-color-item{
+    padding:16px;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:18px;
+    background:rgba(255,255,255,0.04);
+}
+
+.config-color-item label{
+    display:block;
+    margin-bottom:10px;
+    font-weight:600;
+}
+
+.config-color-item input[type="color"]{
+    width:100%;
+    height:48px;
+    border:none;
+    border-radius:12px;
+    background:transparent;
+    cursor:pointer;
+}
+
+.paleta-colores{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+}
+
+.color-dot{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.35);
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.color-dot:hover{
+    transform:scale(1.12);
+    border-color:white;
+}
+
+.config-actions{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-top:24px;
+}
+
+/* Móvil */
+body.modo-movil .panel-configuracion{
+    width:92%;
+    max-height:86vh;
+    padding:22px;
+    border-radius:22px;
+}
+
+body.modo-movil .config-actions{
+    flex-direction:column;
+    align-items:center;
+}
+
+body.modo-movil .config-actions .btn{
+    width:100%;
+}
+
+/* =========================
+   OPCIONES EXTRA CONFIG
+========================= */
+
+.config-extra-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
+    gap:18px;
+    margin-bottom:18px;
+}
+
+.panel-configuracion select{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    background:#1f2937;
+    color:white;
+    border:1px solid rgba(255,255,255,0.12);
+}
+
+/* Tamaño resultado */
+body.resultado-pequeno #salida,
+body.resultado-pequeno .contenido-guardado{
+    font-size:14px;
+}
+
+body.resultado-normal #salida,
+body.resultado-normal .contenido-guardado{
+    font-size:16px;
+}
+
+body.resultado-grande #salida,
+body.resultado-grande .contenido-guardado{
+    font-size:19px;
+}
+
+/* Modo compacto */
+body.modo-compacto .main{
+    padding-top:24px;
+    padding-bottom:24px;
+}
+
+body.modo-compacto .middle-bar{
+    margin:12px 0;
+    gap:14px;
+}
+
+body.modo-compacto .box{
+    margin-bottom:12px;
+}
+
+body.modo-compacto textarea{
+    padding:14px;
+}
+
+body.modo-compacto #salida{
+    padding:12px;
+}
+
+body.modo-compacto .btn{
+    padding:10px 22px;
+}
+
+body.modo-compacto .menu-btn{
+    margin-bottom:10px;
+    padding:12px;
+}
+
+body.modo-movil.modo-compacto .btn{
+    padding:13px;
+}
+
+body.modo-movil.modo-compacto textarea{
+    height:280px;
+}
+
 </style>
 
 </head>
@@ -826,32 +1071,39 @@ body.modo-movil #btnToggleGuardados{
 <div class="sidebar">
 <h3>FUENTES</h3>
 
-<button class="menu-btn active" onclick="cambiarModo('hot','purple',this)">
+<button id="modoBtnHot" class="menu-btn active" onclick="cambiarModo('hot','purple',this)">
 <i class="fa-solid fa-fire"></i> Manhwas Hot
 </button>
 
 
-<button class="menu-btn" onclick="cambiarModo('normal','green',this)">
+<button id="modoBtnNormal" class="menu-btn" onclick="cambiarModo('normal','green',this)">
 <i class="fa-solid fa-book-open"></i> Manhwas normales
 </button>
 
 
-<button class="menu-btn" onclick="cambiarModo('manga','blue',this)">
+<button id="modoBtnManga" class="menu-btn" onclick="cambiarModo('manga','blue',this)">
 <i class="fa-solid fa-mask"></i> Mangas
 </button>
 
 
-<button class="menu-btn" onclick="cambiarModo('youtube','red',this)">
+<button id="modoBtnYoutube" class="menu-btn" onclick="cambiarModo('youtube','red',this)">
 <i class="fa-brands fa-youtube"></i> YouTube
 </button>
 
-<button class="menu-btn" onclick="cambiarModo('intense','orange',this)">
+<button id="modoBtnIntense" class="menu-btn" onclick="cambiarModo('intense','orange',this)">
 <i class="fa-solid fa-comments"></i> IntenseDebate comentarios
 </button>
 
 <button id="btnAvanzado" class="menu-btn boton-avanzado">
 ⚙ Modo Avanzado
 </button>
+
+<div class="sidebar-bottom">
+    <button id="btnConfigVisual" class="menu-btn config-btn" type="button">
+        <i class="fa-solid fa-sliders"></i> Configuración
+    </button>
+</div>
+
 
 </div>
 
@@ -1009,6 +1261,170 @@ body.modo-movil #btnToggleGuardados{
 
 </div>
 
+<div id="configOverlay" class="config-overlay"></div>
+
+<div id="panelConfiguracion" class="panel-configuracion">
+
+    <div id="cerrarPanelConfiguracion" class="cerrar-config">
+        ✕
+    </div>
+
+    <h2>Configuración visual</h2>
+
+    <p style="opacity:0.75; margin-bottom:18px;">
+        Cambia los colores de cada modo. Si activas guardar, los cambios permanecerán aunque cierres o recargues la página.
+    </p>
+
+    <label class="config-save-label">
+        <input type="checkbox" id="chkGuardarConfigVisual">
+        Guardar cambios en este navegador
+    </label>
+
+    <hr style="margin:18px 0; opacity:0.2;">
+
+    <div class="config-colores">
+
+        <div class="config-color-item">
+            <label>🔥 Manhwas Hot</label>
+            <input type="color" id="color-hot" data-modo-color="hot">
+            <div class="paleta-colores" data-paleta="hot"></div>
+        </div>
+
+        <div class="config-color-item">
+            <label>📘 Manhwas normales</label>
+            <input type="color" id="color-normal" data-modo-color="normal">
+            <div class="paleta-colores" data-paleta="normal"></div>
+        </div>
+
+        <div class="config-color-item">
+            <label>📕 Mangas</label>
+            <input type="color" id="color-manga" data-modo-color="manga">
+            <div class="paleta-colores" data-paleta="manga"></div>
+        </div>
+
+        <div class="config-color-item">
+            <label>▶ YouTube</label>
+            <input type="color" id="color-youtube" data-modo-color="youtube">
+            <div class="paleta-colores" data-paleta="youtube"></div>
+        </div>
+
+        <div class="config-color-item">
+            <label>💬 IntenseDebate</label>
+            <input type="color" id="color-intense" data-modo-color="intense">
+            <div class="paleta-colores" data-paleta="intense"></div>
+        </div>
+
+    </div>
+
+<hr style="margin:22px 0; opacity:0.2;">
+
+<h3 style="color:var(--accent); margin-bottom:15px;">
+    Opciones de diseño
+</h3>
+
+<div class="config-extra-grid">
+
+    <div class="config-color-item">
+        <label>Tamaño del resultado</label>
+
+        <select id="configTamanoResultado">
+            <option value="pequeno">Pequeño</option>
+            <option value="normal">Normal</option>
+            <option value="grande">Grande</option>
+        </select>
+    </div>
+
+    <div class="config-color-item">
+        <label>Fondo</label>
+
+        <select id="configFondo">
+    <option value="fondoShadow.png">Fondo Shadow</option>
+    <option value="fondoShadow2.png">Fondo Shadow 2</option>
+    <option value="fondoShadow3.png">Fondo Shadow 3</option>
+    <option value="__personalizado__">Imagen personalizada</option>
+</select>
+
+<div style="opacity:0.65; font-size:13px; margin-top:8px;">
+    Puedes elegir una imagen local o subir una desde tu dispositivo.
+</div>
+
+<input
+    type="file"
+    id="configFondoArchivo"
+    accept="image/*"
+    style="margin-top:12px; width:100%; color:white;"
+>
+
+<div id="previewFondoPersonalizado" style="
+    margin-top:12px;
+    width:100%;
+    height:120px;
+    border-radius:14px;
+    background-size:cover;
+    background-position:center;
+    border:1px solid rgba(255,255,255,0.12);
+    display:none;
+"></div>
+
+<button type="button" class="btn" id="btnQuitarFondoPersonalizado" style="
+    width:100%;
+    margin-top:12px;
+">
+    Quitar imagen personalizada
+</button>
+
+
+    </div>
+
+</div>
+
+<label class="config-save-label">
+    <input type="checkbox" id="chkModoCompacto">
+    Activar modo compacto
+</label>
+
+<label class="config-save-label">
+    <input type="checkbox" id="chkGuardarModoMovil">
+    Recordar modo móvil
+</label>
+
+<hr style="margin:22px 0; opacity:0.2;">
+
+<h3 style="color:var(--accent); margin-bottom:15px;">
+    Modos visibles
+</h3>
+
+<label class="config-save-label">
+    <input type="checkbox" id="chkMostrarYoutube" checked>
+    Mostrar botón YouTube
+</label>
+
+<label class="config-save-label">
+    <input type="checkbox" id="chkMostrarIntense" checked>
+    Mostrar botón IntenseDebate
+</label>
+
+<hr style="margin:22px 0; opacity:0.2;">
+
+<h3 style="color:var(--accent); margin-bottom:15px;">
+    Guardados
+</h3>
+
+<label class="config-save-label">
+    <input type="checkbox" id="chkGuardarGuardados">
+    Mantener guardados al recargar o volver a entrar
+</label>
+
+<div style="opacity:0.7; font-size:13px; margin-bottom:10px;">
+    Si esta opción está desactivada, los guardados se vacían al recargar la página.
+</div>
+
+    <div class="config-actions">
+        <button class="btn" id="btnAplicarConfigVisual">Aplicar colores</button>
+        <button class="btn" id="btnResetConfigVisual">Restaurar diseño</button>
+    </div>
+
+</div>
 
 <script>
 
@@ -1137,6 +1553,498 @@ function actualizarOpcionManhua(){
     }
 }
 
+/* ===============================
+   CONFIGURACIÓN VISUAL
+=============================== */
+
+const coloresPorDefecto = {
+    hot: "#a855f7",
+    normal: "#22c55e",
+    manga: "#3b82f6",
+    youtube: "#ef4444",
+    intense: "#f97316"
+};
+
+let coloresModo = {
+    ...coloresPorDefecto
+};
+
+let guardarConfigVisual = false;
+
+const coloresRapidos = [
+    "#a855f7", "#8b5cf6", "#6366f1", "#3b82f6",
+    "#06b6d4", "#14b8a6", "#22c55e", "#84cc16",
+    "#eab308", "#f97316", "#ef4444", "#ec4899",
+    "#f43f5e", "#ffffff", "#cccccc"
+];
+
+configExtra = {
+    tamanoResultado: "normal",
+    modoCompacto: false,
+    fondo: "fondoShadow.png",
+    fondoPersonalizado: "",
+    mostrarYoutube: true,
+    mostrarIntense: true,
+    guardarModoMovil: false
+};
+
+let guardarGuardadosPersistentes = false;
+
+function colorHexASoft(hex){
+    hex = hex.replace("#", "");
+
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+
+    return `rgba(${r},${g},${b},0.15)`;
+}
+
+function aplicarColorVisual(hex){
+    const root = document.documentElement;
+
+    root.style.setProperty("--accent", hex);
+    root.style.setProperty("--accent-soft", colorHexASoft(hex));
+
+    const btnProcesar = document.getElementById("btnProcesar");
+
+    if(btnProcesar){
+        btnProcesar.style.borderColor = hex;
+        btnProcesar.style.boxShadow = "0 0 12px " + hex;
+    }
+}
+
+function obtenerColorModo(modo){
+    return coloresModo[modo] || coloresPorDefecto[modo] || "#a855f7";
+}
+
+function guardarConfiguracionVisual(){
+    if(!guardarConfigVisual){
+        localStorage.removeItem("config_visual_modos");
+        return;
+    }
+
+    localStorage.setItem("config_visual_modos", JSON.stringify({
+        guardar: true,
+        colores: coloresModo,
+        extra: configExtra
+    }));
+}
+
+function cargarConfiguracionVisual(){
+    const data = localStorage.getItem("config_visual_modos");
+
+    if(data){
+        try{
+            const config = JSON.parse(data);
+
+            if(config.colores){
+                coloresModo = {
+                    ...coloresPorDefecto,
+                    ...config.colores
+                };
+            }
+
+            if(config.extra){
+                configExtra = {
+                    ...configExtra,
+                    ...config.extra
+                };
+            }
+
+            guardarConfigVisual = !!config.guardar;
+        }catch(error){
+            console.warn("No se pudo cargar la configuración visual.");
+        }
+    }
+
+    const guardarGuardadosData = localStorage.getItem("config_guardar_guardados");
+
+    if(guardarGuardadosData === "true"){
+        guardarGuardadosPersistentes = true;
+    }else{
+        guardarGuardadosPersistentes = false;
+    }
+}
+
+function sincronizarPanelConfiguracion(){
+    const chkGuardar = document.getElementById("chkGuardarConfigVisual");
+
+    if(chkGuardar){
+        chkGuardar.checked = guardarConfigVisual;
+    }
+
+    Object.keys(coloresPorDefecto).forEach(modo => {
+        const input = document.getElementById("color-" + modo);
+
+        if(input){
+            input.value = obtenerColorModo(modo);
+        }
+    });
+
+    const tamano = document.getElementById("configTamanoResultado");
+    const fondo = document.getElementById("configFondo");
+    const compacto = document.getElementById("chkModoCompacto");
+    const guardarMovil = document.getElementById("chkGuardarModoMovil");
+    const mostrarYoutube = document.getElementById("chkMostrarYoutube");
+    const mostrarIntense = document.getElementById("chkMostrarIntense");
+    const guardarGuardados = document.getElementById("chkGuardarGuardados");
+
+    if(tamano) tamano.value = configExtra.tamanoResultado;
+    if(fondo) fondo.value = configExtra.fondo;
+
+    const previewFondo = document.getElementById("previewFondoPersonalizado");
+
+if(previewFondo){
+    if(configExtra.fondoPersonalizado){
+        previewFondo.style.display = "block";
+        previewFondo.style.backgroundImage = `url("${configExtra.fondoPersonalizado}")`;
+    }else{
+        previewFondo.style.display = "none";
+        previewFondo.style.backgroundImage = "";
+    }
+}
+    if(compacto) compacto.checked = configExtra.modoCompacto;
+    if(guardarMovil) guardarMovil.checked = configExtra.guardarModoMovil;
+    if(mostrarYoutube) mostrarYoutube.checked = configExtra.mostrarYoutube;
+    if(mostrarIntense) mostrarIntense.checked = configExtra.mostrarIntense;
+    if(guardarGuardados) guardarGuardados.checked = guardarGuardadosPersistentes;
+}
+
+function aplicarConfiguracionExtra(){
+
+    document.body.classList.remove(
+        "resultado-pequeno",
+        "resultado-normal",
+        "resultado-grande"
+    );
+
+    document.body.classList.add("resultado-" + configExtra.tamanoResultado);
+
+    if(configExtra.modoCompacto){
+        document.body.classList.add("modo-compacto");
+    }else{
+        document.body.classList.remove("modo-compacto");
+    }
+
+    const fondo = document.querySelector(".background-img");
+
+if(fondo){
+    if(configExtra.fondo === "__personalizado__" && configExtra.fondoPersonalizado){
+        fondo.style.backgroundImage = `url("${configExtra.fondoPersonalizado}")`;
+    }else{
+        fondo.style.backgroundImage = `url("${configExtra.fondo}")`;
+    }
+}
+
+    const btnYoutube = document.getElementById("modoBtnYoutube");
+    const btnIntense = document.getElementById("modoBtnIntense");
+
+    if(btnYoutube){
+        btnYoutube.style.display = configExtra.mostrarYoutube ? "flex" : "none";
+    }
+
+    if(btnIntense){
+        btnIntense.style.display = configExtra.mostrarIntense ? "flex" : "none";
+    }
+
+    if(!configExtra.mostrarYoutube && modoActual === "youtube"){
+        document.getElementById("modoBtnHot")?.click();
+    }
+
+    if(!configExtra.mostrarIntense && modoActual === "intense"){
+        document.getElementById("modoBtnHot")?.click();
+    }
+}
+
+function restaurarDisenoCompleto(){
+    coloresModo = {
+        ...coloresPorDefecto
+    };
+
+    configExtra = {
+        tamanoResultado: "normal",
+        modoCompacto: false,
+        fondo: "fondoShadow.png",
+        mostrarYoutube: true,
+        mostrarIntense: true,
+        guardarModoMovil: false
+    };
+
+    guardarConfigVisual = false;
+
+    localStorage.removeItem("config_visual_modos");
+    localStorage.removeItem("modo_movil_guardado");
+
+    sincronizarPanelConfiguracion();
+    aplicarConfiguracionExtra();
+    aplicarColorVisual(obtenerColorModo(modoActual));
+
+    alert("Diseño restaurado correctamente.");
+}
+
+function abrirPanelConfiguracion(){
+    const panel = document.getElementById("panelConfiguracion");
+    const overlay = document.getElementById("configOverlay");
+
+    sincronizarPanelConfiguracion();
+
+    panel.classList.add("activo");
+    overlay.classList.add("activo");
+}
+
+function cerrarPanelConfiguracion(){
+    document.getElementById("panelConfiguracion").classList.remove("activo");
+    document.getElementById("configOverlay").classList.remove("activo");
+}
+
+function inicializarPanelConfiguracion(){
+    const btnConfig = document.getElementById("btnConfigVisual");
+    const btnCerrar = document.getElementById("cerrarPanelConfiguracion");
+    const overlay = document.getElementById("configOverlay");
+    const chkGuardar = document.getElementById("chkGuardarConfigVisual");
+    const btnAplicar = document.getElementById("btnAplicarConfigVisual");
+    const btnReset = document.getElementById("btnResetConfigVisual");
+    const selectTamano = document.getElementById("configTamanoResultado");
+    const selectFondo = document.getElementById("configFondo");
+    const inputFondoArchivo = document.getElementById("configFondoArchivo");
+    const btnQuitarFondoPersonalizado = document.getElementById("btnQuitarFondoPersonalizado");
+    const chkCompacto = document.getElementById("chkModoCompacto");
+    const chkGuardarMovil = document.getElementById("chkGuardarModoMovil");
+    const chkMostrarYoutube = document.getElementById("chkMostrarYoutube");
+    const chkMostrarIntense = document.getElementById("chkMostrarIntense");
+    const chkGuardarGuardados = document.getElementById("chkGuardarGuardados");
+
+    if(btnConfig){
+        btnConfig.onclick = abrirPanelConfiguracion;
+    }
+
+    if(btnCerrar){
+        btnCerrar.onclick = cerrarPanelConfiguracion;
+    }
+
+    if(overlay){
+        overlay.onclick = cerrarPanelConfiguracion;
+    }
+
+    if(chkGuardar){
+        chkGuardar.onchange = function(){
+            guardarConfigVisual = this.checked;
+            guardarConfiguracionVisual();
+        };
+    }
+
+    document.querySelectorAll("[data-modo-color]").forEach(input => {
+        input.addEventListener("input", function(){
+            const modo = this.dataset.modoColor;
+
+            coloresModo[modo] = this.value;
+
+            if(modoActual === modo){
+                aplicarColorVisual(this.value);
+            }
+
+            guardarConfiguracionVisual();
+        });
+    });
+
+    document.querySelectorAll(".paleta-colores").forEach(contenedor => {
+        const modo = contenedor.dataset.paleta;
+
+        contenedor.innerHTML = "";
+
+        coloresRapidos.forEach(color => {
+            const dot = document.createElement("div");
+            dot.className = "color-dot";
+            dot.style.background = color;
+            dot.title = color;
+
+            dot.onclick = function(){
+                const input = document.getElementById("color-" + modo);
+
+                if(input){
+                    input.value = color;
+                    coloresModo[modo] = color;
+
+                    if(modoActual === modo){
+                        aplicarColorVisual(color);
+                    }
+
+                    guardarConfiguracionVisual();
+                }
+            };
+
+            contenedor.appendChild(dot);
+        });
+    });
+
+    if(selectTamano){
+    selectTamano.onchange = function(){
+        configExtra.tamanoResultado = this.value;
+        aplicarConfiguracionExtra();
+        guardarConfiguracionVisual();
+    };
+}
+
+if(selectFondo){
+    selectFondo.onchange = function(){
+        configExtra.fondo = this.value;
+        aplicarConfiguracionExtra();
+        guardarConfiguracionVisual();
+        sincronizarPanelConfiguracion();
+    };
+}
+
+if(inputFondoArchivo){
+    inputFondoArchivo.onchange = function(){
+
+        const archivo = this.files[0];
+
+        if(!archivo){
+            return;
+        }
+
+        if(!archivo.type.startsWith("image/")){
+            alert("Selecciona una imagen válida.");
+            return;
+        }
+
+        /// Evita guardar imágenes demasiado pesadas
+if(archivo.size > 5 * 1024 * 1024){
+    alert("La imagen es muy pesada. Usa una imagen menor de 5 MB.");
+    this.value = "";
+    return;
+}
+
+        const lector = new FileReader();
+
+        lector.onload = function(e){
+            configExtra.fondoPersonalizado = e.target.result;
+            configExtra.fondo = "__personalizado__";
+
+            if(selectFondo){
+                selectFondo.value = "__personalizado__";
+            }
+
+            aplicarConfiguracionExtra();
+            sincronizarPanelConfiguracion();
+            guardarConfiguracionVisual();
+
+            alert("Imagen de fondo aplicada.");
+        };
+
+        lector.readAsDataURL(archivo);
+    };
+}
+
+if(btnQuitarFondoPersonalizado){
+    btnQuitarFondoPersonalizado.onclick = function(){
+        configExtra.fondoPersonalizado = "";
+        configExtra.fondo = "fondoShadow.png";
+
+        const inputArchivo = document.getElementById("configFondoArchivo");
+
+        if(inputArchivo){
+            inputArchivo.value = "";
+        }
+
+        localStorage.removeItem("config_visual_modos");
+
+        if(guardarConfigVisual){
+            guardarConfiguracionVisual();
+        }
+
+        aplicarConfiguracionExtra();
+        sincronizarPanelConfiguracion();
+
+        alert("Imagen personalizada quitada del navegador.");
+    };
+}
+
+
+if(chkCompacto){
+    chkCompacto.onchange = function(){
+        configExtra.modoCompacto = this.checked;
+        aplicarConfiguracionExtra();
+        guardarConfiguracionVisual();
+    };
+}
+
+if(chkGuardarMovil){
+    chkGuardarMovil.onchange = function(){
+        configExtra.guardarModoMovil = this.checked;
+
+        if(this.checked){
+            localStorage.setItem(
+                "modo_movil_guardado",
+                document.body.classList.contains("modo-movil") ? "true" : "false"
+            );
+        }else{
+            localStorage.removeItem("modo_movil_guardado");
+        }
+
+        guardarConfiguracionVisual();
+    };
+}
+
+if(chkMostrarYoutube){
+    chkMostrarYoutube.onchange = function(){
+        configExtra.mostrarYoutube = this.checked;
+        aplicarConfiguracionExtra();
+        guardarConfiguracionVisual();
+    };
+}
+
+if(chkMostrarIntense){
+    chkMostrarIntense.onchange = function(){
+        configExtra.mostrarIntense = this.checked;
+        aplicarConfiguracionExtra();
+        guardarConfiguracionVisual();
+    };
+}
+
+if(chkGuardarGuardados){
+    chkGuardarGuardados.onchange = function(){
+        guardarGuardadosPersistentes = this.checked;
+
+        localStorage.setItem(
+            "config_guardar_guardados",
+            guardarGuardadosPersistentes ? "true" : "false"
+        );
+
+        if(guardarGuardadosPersistentes){
+            guardarMemoria();
+        }else{
+            localStorage.removeItem("guardados_persistentes");
+        }
+    };
+}
+    
+    if(btnAplicar){
+        btnAplicar.onclick = function(){
+            Object.keys(coloresPorDefecto).forEach(modo => {
+                const input = document.getElementById("color-" + modo);
+
+                if(input){
+                    coloresModo[modo] = input.value;
+                }
+            });
+
+            aplicarColorVisual(obtenerColorModo(modoActual));
+            guardarConfiguracionVisual();
+
+            alert("Colores aplicados correctamente.");
+        };
+    }
+
+    if(btnReset){
+    btnReset.onclick = function(){
+        restaurarDisenoCompleto();
+    };
+}
+
+}
+
 /* ===== CAMBIO DE MODO + COLOR ===== */
 function cambiarModo(modo, color, element){
 
@@ -1159,47 +2067,15 @@ function cambiarModo(modo, color, element){
 /* ===== TEMA VISUAL ===== */
 function setTheme(color, element){
 
-    let root = document.documentElement;
+    const colorFinal = obtenerColorModo(modoActual);
 
-    if(color==="purple"){
-        root.style.setProperty('--accent','#a855f7');
-        root.style.setProperty('--accent-soft','rgba(168,85,247,0.15)');
-    }
+    aplicarColorVisual(colorFinal);
 
-    if(color==="green"){
-        root.style.setProperty('--accent','#22c55e');
-        root.style.setProperty('--accent-soft','rgba(34,197,94,0.15)');
-    }
-
-    if(color==="blue"){
-        root.style.setProperty('--accent','#3b82f6');
-        root.style.setProperty('--accent-soft','rgba(59,130,246,0.15)');
-    }
-
-    if(color==="red"){
-        root.style.setProperty('--accent','#ef4444');
-        root.style.setProperty('--accent-soft','rgba(239,68,68,0.15)');
-    }
-
-    if(color==="orange"){
-        root.style.setProperty('--accent','#f97316');
-        root.style.setProperty('--accent-soft','rgba(249,115,22,0.15)');
-    }
-
-    document.querySelectorAll('.menu-btn').forEach(btn=>{
-        btn.classList.remove('active');
+    document.querySelectorAll(".menu-btn").forEach(btn => {
+        btn.classList.remove("active");
     });
 
-    element.classList.add('active');
-
-    // 🔥 ESTO VA AQUÍ, FUERA DE LOS IF
-    document.getElementById("btnProcesar").style.borderColor =
-        getComputedStyle(document.documentElement)
-        .getPropertyValue('--accent');
-
-    document.getElementById("btnProcesar").style.boxShadow =
-        "0 0 12px var(--accent)";
-
+    element.classList.add("active");
 }
 
 /* ===== PROCESAR SEGÚN MODO ===== */
@@ -1250,18 +2126,49 @@ function procesar(){
 =============================== */
 
 function cargarMemoriaGuardados(){
-    // Al recargar la página, las listas empiezan vacías
-    listaManhwasHot = [];
-    listaManhwasNormales = [];
-    listaMangas = [];
+
+    if(guardarGuardadosPersistentes){
+        const data = localStorage.getItem("guardados_persistentes");
+
+        if(data){
+            try{
+                const guardados = JSON.parse(data);
+
+                listaManhwasHot = guardados.hot || [];
+                listaManhwasNormales = guardados.normal || [];
+                listaMangas = guardados.manga || [];
+            }catch(error){
+                listaManhwasHot = [];
+                listaManhwasNormales = [];
+                listaMangas = [];
+            }
+        }else{
+            listaManhwasHot = [];
+            listaManhwasNormales = [];
+            listaMangas = [];
+        }
+    }else{
+        listaManhwasHot = [];
+        listaManhwasNormales = [];
+        listaMangas = [];
+        localStorage.removeItem("guardados_persistentes");
+    }
 
     actualizarContadoresGuardados();
     renderizarGuardados();
 }
 
-function guardarMemoria(tipo){
-    // No guardamos en localStorage ni sessionStorage
-    // Así todo se borra al recargar la página
+function guardarMemoria(){
+    if(!guardarGuardadosPersistentes){
+        localStorage.removeItem("guardados_persistentes");
+        return;
+    }
+
+    localStorage.setItem("guardados_persistentes", JSON.stringify({
+        hot: listaManhwasHot,
+        normal: listaManhwasNormales,
+        manga: listaMangas
+    }));
 }
 
 function obtenerListaPorTipo(tipo){
@@ -1476,7 +2383,7 @@ function borrarGuardado(tipo, id){
         lista.splice(index, 1);
     }
 
-    guardarMemoria(tipo);
+    guardarMemoria();
     actualizarContadoresGuardados();
     renderizarGuardados();
 
@@ -1523,6 +2430,7 @@ function guardarResultado(resultadoHTML){
 
             actualizarContadoresGuardados();
             renderizarGuardados();
+            guardarMemoria();
 
             itemEditando = null;
 
@@ -1539,10 +2447,12 @@ function guardarResultado(resultadoHTML){
 
     listaDestino.push(snapshot);
 
-    actualizarContadoresGuardados();
-    renderizarGuardados();
+actualizarContadoresGuardados();
+renderizarGuardados();
+guardarMemoria();
 
-    alert("Guardado correctamente.");
+alert("Guardado correctamente.");
+
 }
 
 function toggleGuardados(){
@@ -3165,6 +4075,12 @@ btnMovil.onclick = function(){
         document.querySelector(".sidebar").classList.remove("activo");
     }
 
+    if(configExtra.guardarModoMovil){
+        localStorage.setItem(
+            "modo_movil_guardado",
+            document.body.classList.contains("modo-movil") ? "true" : "false"
+        );
+    }
 };
 
     const menuBtn = document.getElementById("menuToggle");
@@ -3180,15 +4096,35 @@ if(btnAgregarLink){
     btnAgregarLink.onclick = agregarLinkLectura;
 }
 
-// Al abrir la página empieza vacío
+// Cargar configuración visual guardada
+cargarConfiguracionVisual();
+
+// Inicializar panel de configuración
+inicializarPanelConfiguracion();
+
+// Aplicar color del modo inicial
+aplicarColorVisual(obtenerColorModo(modoActual));
+
+// Aplicar tamaño, fondo, compacto, botones visibles
+aplicarConfiguracionExtra();
+
+// Restaurar modo móvil si está activado
+if(configExtra.guardarModoMovil){
+    const modoMovilGuardado = localStorage.getItem("modo_movil_guardado");
+
+    if(modoMovilGuardado === "true"){
+        document.body.classList.add("modo-movil");
+        btnMovil.innerHTML = "💻 Modo PC";
+    }
+}
+
+// Cargar guardados según configuración
 cargarMemoriaGuardados();
 
 // Mostrar u ocultar opción Manhua según modo actual
 actualizarOpcionManhua();
 
 });
-
-
 
 function copiar(){
     if(!ultimoResultadoHTML || ultimoResultadoHTML.trim() === ""){
