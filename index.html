@@ -952,6 +952,12 @@ body.modo-movil #btnToggleGuardados{
     <label><input type="checkbox" id="chkSinopsis" checked> Mostrar Sinopsis</label>
     <label><input type="checkbox" id="chkCanal" checked> Mostrar Canal</label>
     <label><input type="checkbox" id="chkVideo" checked> Mostrar Video</label>
+
+    
+    <div id="opcionManhuaWrap" style="display:none;">
+       <label><input type="checkbox" id="chkManhua"> Manhua</label>
+    </div>
+
     <label><input type="checkbox" id="chkEncontrado" checked> Mostrar "Lo encontré en"</label>
     <label><input type="checkbox" id="chkDecoracion" checked> Mostrar decoración superior</label>
     <hr>
@@ -1091,6 +1097,23 @@ btnVerFondo.addEventListener("mouseup", function(){
 
 });
 
+function actualizarOpcionManhua(){
+    const wrap = document.getElementById("opcionManhuaWrap");
+    const chk = document.getElementById("chkManhua");
+
+    if(!wrap) return;
+
+    if(modoActual === "manga"){
+        wrap.style.display = "block";
+    }else{
+        wrap.style.display = "none";
+
+        if(chk){
+            chk.checked = false;
+        }
+    }
+}
+
 /* ===== CAMBIO DE MODO + COLOR ===== */
 function cambiarModo(modo, color, element){
 
@@ -1106,6 +1129,8 @@ function cambiarModo(modo, color, element){
         modoInteligenteActivo = false;
         btnIntel.innerText = "🧠 Modo inteligente OFF";
     }
+
+   actualizarOpcionManhua();
 }
 
 /* ===== TEMA VISUAL ===== */
@@ -1256,6 +1281,7 @@ function obtenerSnapshotActual(resultadoHTML){
             tituloVideo: document.getElementById("editTituloVideo").value,
             encontrado: document.getElementById("editEncontrado").value,
             estadoManual: document.getElementById("editEstadoManual")?.value || "auto",
+            manhua: document.getElementById("chkManhua")?.checked || false,
             linkPrincipal: document.getElementById("editLeerAqui").value,
             linksExtra: Array.from(document.querySelectorAll(".linkLecturaExtra")).map(input => input.value)
         }
@@ -1287,7 +1313,13 @@ function restaurarSnapshot(item){
 
         if(document.getElementById("editEstadoManual")){
             document.getElementById("editEstadoManual").value = item.panel.estadoManual || "auto";
-        }
+       }
+
+     if(document.getElementById("chkManhua")){
+         document.getElementById("chkManhua").checked = item.panel.manhua || false;
+      }
+
+       actualizarOpcionManhua();
 
         document.getElementById("editLeerAqui").value = item.panel.linkPrincipal || "";
 
@@ -1542,6 +1574,12 @@ function limpiar(){
     document.getElementById("editTituloVideo").value = "Título de video:";
     document.getElementById("editEncontrado").value = "Lo encontré en:";
     document.getElementById("editLeerAqui").value = "";
+     
+    if(document.getElementById("chkManhua")){
+    document.getElementById("chkManhua").checked = false;
+    }
+    actualizarOpcionManhua();
+
 
     document.getElementById("editEstadoManual").value = "auto";
     document.getElementById("linksExtraContainer").innerHTML = "";
@@ -2358,6 +2396,10 @@ if(document.getElementById("chkTitulo").checked){
     "</div><br>";
 }
 
+if(document.getElementById("chkManhua")?.checked && modoActual === "manga"){
+    resultado += "<div>(Es un Manhua)</div><br>";
+}
+
 // VIDEO
 /* ===== TÍTULO DE VIDEO (EDITABLE) ===== */
 let tituloVideo = document.getElementById("editTituloVideo").value.trim()
@@ -2820,6 +2862,10 @@ if (document.getElementById("chkTitulo").checked) {
     "</div><br>";
 }
 
+if(document.getElementById("chkManhua")?.checked && modoActual === "manga"){
+    resultado += "<div>(Es un Manhua)</div><br>";
+}
+
 /* ===== VIDEO ===== */
 let tituloVideo = document.getElementById("editTituloVideo").value.trim()
     || "Título de video:";
@@ -3113,6 +3159,9 @@ if(btnAgregarLink){
 
 // Al abrir la página empieza vacío
 cargarMemoriaGuardados();
+
+// Mostrar u ocultar opción Manhua según modo actual
+actualizarOpcionManhua();
 
 });
 
