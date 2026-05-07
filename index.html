@@ -32,11 +32,19 @@
 }
 
 body{
-    height:100vh;
+    min-height:100vh;
     color:#ddd;
-    background:#0a0a0f;
     overflow:auto;
     position:relative;
+
+    background-image:
+        linear-gradient(rgba(10,10,15,0.70), rgba(10,10,15,0.70)),
+        url("fondoShadow.png");
+
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
 }
 
 #salida{
@@ -50,24 +58,12 @@ body{
 ========================= */
 
 .background-img{
-    position:fixed;
-    inset:0;
-    background-image:url("fondoShadow.png");
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    opacity:0.25;
-    z-index:0;
-    pointer-events:none;
+    display:none;
 }
 
 
 .overlay-dark{
-    position:fixed;
-    inset:0;
-    bbackground:rgba(0,0,0,0.15);
-    z-index:1;
-    pointer-events:none;
+    display:none;
 }
 
 .container,
