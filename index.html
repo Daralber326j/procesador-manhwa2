@@ -50,20 +50,31 @@ body{
 ========================= */
 
 .background-img{
-    position:absolute;
+    position:fixed;
     inset:0;
     background-image:url("fondoShadow.png");
     background-size:cover;
     background-position:center;
-    opacity:0.18;
-    z-index:-2;
+    background-repeat:no-repeat;
+    opacity:0.25;
+    z-index:0;
+    pointer-events:none;
 }
 
+
 .overlay-dark{
-    position:absolute;
+    position:fixed;
     inset:0;
-    background:linear-gradient(to right,#0a0a0f 20%,rgba(10,10,15,0.85) 60%,#0a0a0f);
-    z-index:-1;
+    background:rgba(0,0,0,0.45);
+    z-index:1;
+    pointer-events:none;
+}
+
+.container,
+.glow-bar,
+.panel-avanzado{
+    position:relative;
+    z-index:2;
 }
 
 /* =========================
