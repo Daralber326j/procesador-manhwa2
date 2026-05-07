@@ -781,8 +781,23 @@ body.avanzado-activo h1{
 <textarea id="entrada" placeholder="Pega aquí el texto..."></textarea>
 </div>
 
+<!-- ===============================
+     CONTADORES ACUMULADOS
+=============================== -->
+
+<div id="contadores" style="margin-bottom:15px;">
+  <div>🔥 Manhwas Hot: <span id="count-hot">0</span></div>
+  <div>📘 Manhwas Normales: <span id="count-normal">0</span></div>
+  <div>📕 Mangas: <span id="count-manga">0</span></div>
+</div>
+
 <div class="middle-bar">
 <button class="btn" id="btnProcesar" onclick="procesar()">Procesar</button>
+
+<button class="btn" id="btnGuardar" onclick="guardarActual()">
+💾 Guardar actual
+</button>
+
 <button id="btnModoInteligente" class="btn modo-off">
 🧠 Modo inteligente OFF
 </button>
@@ -797,8 +812,34 @@ body.avanzado-activo h1{
 <div id="salida" class="salida-html"></div>
 </div>
 
+<div style="margin-top:15px;">
+  <button class="btn" onclick="copiarManhwasHot()">Copiar Manhwas Hot</button>
+  <button class="btn" onclick="copiarManhwas()">Copiar Manhwas</button>
+  <button class="btn" onclick="copiarMangas()">Copiar Mangas</button>
+</div>
 
 
+<button class="btn" id="btnToggleGuardados" onclick="toggleGuardados()">
+    📦 Ver guardados
+  </button>
+
+
+<div id="guardados" style="display:none; margin-top:20px;">
+
+  <h3>🔥 Guardados Manhwas Hot</h3>
+  <div id="guardados-hot"></div>
+
+  <br>
+
+  <h3>📘 Guardados Manhwas Normales</h3>
+  <div id="guardados-normal"></div>
+
+  <br>
+
+  <h3>📕 Guardados Mangas</h3>
+  <div id="guardados-manga"></div>
+
+</div>
 
 </div>
 </div>
@@ -861,6 +902,15 @@ let modoActual = "hot";
 let origenInteligente = null; // "normal" | "manga"
 
 let modoInteligenteActivo = false;
+
+// ===============================
+// LISTAS ACUMULATIVAS POR MODO
+// ===============================
+let listaManhwasHot = [];
+let listaManhwasNormales = [];
+let listaMangas = [];
+
+let ultimoResultadoHTML = "";
 
 document.getElementById("btnModoInteligente").onclick = function(){
 
@@ -1015,70 +1065,143 @@ function procesar(){
     // Autocompletar panel avanzado con datos actuales
     let lineas = texto.split("\n");
     if(lineas.length > 0 && lineas[0].trim() !== ""){
-    if(document.getElementById("editTitulo").value.trim() === ""){
-    document.getElementById("editTitulo").value = lineas[0];
-}
-
-}
+        if(document.getElementById("editTitulo").value.trim() === ""){
+            document.getElementById("editTitulo").value = lineas[0];
+        }
+    }
 
     // Mostrar mensaje mientras procesa
-document.getElementById("salida").innerHTML = "⏳ Procesando...";
+    document.getElementById("salida").innerHTML = "⏳ Procesando...";
 
-setTimeout(() => {
+    setTimeout(() => {
 
-    if(modoActual === "hot"){
-        formatear();
-    }
-
-   else if (modoActual === "normal") {
-    formatearNormal();
-}
-
-    else if(modoActual === "manga"){
-
-        if(modoInteligenteActivo){
-            formatearMangaInteligente();
-        }else{
-            formatearManga();
+        if(modoActual === "hot"){
+            formatear();
+        }
+        else if (modoActual === "normal"){
+            formatearNormal();
+        }
+        else if(modoActual === "manga"){
+            if(modoInteligenteActivo){
+                formatearMangaInteligente();
+            }else{
+                formatearManga();
+            }
+        }
+        else if(modoActual === "youtube"){
+            formatearYouTube();
+        }
+        else if(modoActual === "intense"){
+            formatearIntenseDebate();
         }
 
-    }
-
-
-    else if(modoActual === "youtube"){
-        formatearYouTube();
-    }
-    else if(modoActual === "intense"){
-        formatearIntenseDebate();
-    }
-
-}, 10);
+    }, 10);
 }
 
+// ✅✅✅ AQUÍ EMPIEZA LA FUNCIÓN NUEVA ✅✅✅
+function guardarResultado(resultadoHTML){
 
-/* ===== COPIAR / LIMPIAR ===== */
-function copiar(){
-    const salida = document.getElementById("salida");
+    if(resultadoHTML.trim() === ""){
+        alert("No hay resultado para guardar.");
+        return;
+    }
 
-    const range = document.createRange();
-    range.selectNodeContents(salida);
+    let contenedor = null;
+    let listaDestino = null;
+    let contador = null;
 
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+    if(modoActual === "hot"){
+        listaDestino = listaManhwasHot;
+        contenedor = document.getElementById("guardados-hot");
+        contador = document.getElementById("count-hot");
+    }
 
-    document.execCommand("copy");
-    selection.removeAllRanges();
+    else if(modoActual === "normal"){
+        listaDestino = listaManhwasNormales;
+        contenedor = document.getElementById("guardados-normal");
+        contador = document.getElementById("count-normal");
+    }
+
+    else if(modoActual === "manga"){
+        listaDestino = listaMangas;
+        contenedor = document.getElementById("guardados-manga");
+        contador = document.getElementById("count-manga");
+    }
+
+    else{
+        alert("Este modo no tiene apartado de guardado.");
+        return;
+    }
+
+    // Evita guardar el mismo resultado repetido por accidente
+    if(listaDestino.includes(resultadoHTML)){
+        alert("Este resultado ya está guardado en este apartado.");
+        return;
+    }
+
+    listaDestino.push(resultadoHTML);
+    contador.textContent = listaDestino.length;
+
+    contenedor.innerHTML += `
+        <div class="resultado-item" style="
+            padding:15px;
+            margin-bottom:15px;
+            border:1px solid var(--accent);
+            border-radius:14px;
+            background:rgba(255,255,255,0.04);
+        ">
+            ${resultadoHTML}
+        </div>
+    `;
+
+    alert("Guardado correctamente.");
+}
+
+function toggleGuardados(){
+
+    const panel = document.getElementById("guardados");
+    const boton = document.getElementById("btnToggleGuardados");
+
+    if(panel.style.display === "none" || panel.style.display === ""){
+        panel.style.display = "block";
+        boton.innerText = "🙈 Ocultar guardados";
+    }else{
+        panel.style.display = "none";
+        boton.innerText = "📦 Ver guardados";
+    }
+}
+
+function guardarActual(){
+    guardarResultado(ultimoResultadoHTML);
+}
+
+function toggleGuardados(){
+
+    const panel = document.getElementById("guardados");
+    const boton = document.getElementById("btnToggleGuardados");
+
+    if(panel.style.display === "none" || panel.style.display === ""){
+        panel.style.display = "block";
+        boton.innerText = "🙈 Ocultar guardados";
+    }else{
+        panel.style.display = "none";
+        boton.innerText = "📦 Ver guardados";
+    }
 }
 
 
 function limpiar(){
 
-    // Limpiar entrada y salida
+    // 🔹 Limpiar entrada
     document.getElementById("entrada").value = "";
+
+    // 🔹 Limpiar resultado mostrado
     document.getElementById("salida").innerHTML = "";
 
-    // Resetear campos del panel avanzado
+    // 🔹 Resetear último resultado guardado
+    ultimoResultadoHTML = "";
+
+    // 🔹 Resetear panel avanzado
     document.getElementById("editTitulo").value = "";
     document.getElementById("editSinopsis").value = "Sipnosis:";
     document.getElementById("editCanal").value = "Canal:";
@@ -1086,8 +1209,8 @@ function limpiar(){
     document.getElementById("editTituloVideo").value = "Título de video:";
     document.getElementById("editEncontrado").value = "Lo encontré en:";
     document.getElementById("editLeerAqui").value = "";
-
 }
+
 
 async function pegarDesdePortapapeles(){
     try{
@@ -1428,6 +1551,7 @@ resultado += "<div><strong>❕No tiene NTR</strong></div>";
 resultado += "<div>" + resumenNTR + "</div><br>";
 resultado += "<div>______________________________________</div>";
 
+ultimoResultadoHTML = resultado;
 document.getElementById("salida").innerHTML = resultado;
 }
 
@@ -1630,6 +1754,8 @@ if(tieneNTR){
 resultado += "<div>______________________________________</div>";
 
 document.getElementById("salida").className = "salida-normal";
+
+ultimoResultadoHTML = resultado;
 document.getElementById("salida").innerHTML = resultado;
 }
 
@@ -1837,6 +1963,8 @@ if(estado && estado.toLowerCase() === "finalizado"){
 resultado += "<div>______________________________________</div>";
 
 document.getElementById("salida").className = "salida-manga";
+
+ultimoResultadoHTML = resultado;
 document.getElementById("salida").innerHTML = resultado;
 }
 
@@ -2251,6 +2379,8 @@ if (modoActual === "normal") {
     resultado += "<div>______________________________________</div>";
 
     document.getElementById("salida").className = "salida-normal";
+
+    ultimoResultadoHTML = resultado;
     document.getElementById("salida").innerHTML = resultado;
 
     return;
@@ -2310,6 +2440,8 @@ resultado += "<div>______________________________________</div>";
 
 document.getElementById("salida").className =
     (modoActual === "normal") ? "salida-normal" : "salida-manga";
+
+ultimoResultadoHTML = resultado;
 document.getElementById("salida").innerHTML = resultado;
 
 }
@@ -2555,6 +2687,53 @@ menuBtn.onclick = function(){
 };
 
 });
+
+
+
+function copiarManhwasHot(){
+    copiarListaGuardada(listaManhwasHot, "Manhwas Hot");
+}
+
+function copiarManhwas(){
+    copiarListaGuardada(listaManhwasNormales, "Manhwas Normales");
+}
+
+function copiarMangas(){
+    copiarListaGuardada(listaMangas, "Mangas");
+}
+
+function copiarListaGuardada(lista, nombre){
+
+    if(lista.length === 0){
+        alert("No hay guardados en " + nombre + ".");
+        return;
+    }
+
+    const temp = document.createElement("div");
+
+    temp.style.position = "fixed";
+    temp.style.left = "-9999px";
+    temp.style.top = "0";
+    temp.innerHTML = lista.join("<br><br>");
+
+    document.body.appendChild(temp);
+
+    const range = document.createRange();
+    range.selectNodeContents(temp);
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    document.execCommand("copy");
+
+    selection.removeAllRanges();
+    document.body.removeChild(temp);
+
+    alert(nombre + " copiados.");
+}
+
+
 
 </script>
 
