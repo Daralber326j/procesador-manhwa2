@@ -513,6 +513,12 @@ body.modo-movil .panel-avanzado input[type="text"]{
     border-radius:12px;
 }
 
+body.modo-movil .panel-avanzado input[type="number"]{
+    font-size:17px;
+    padding:14px;
+    border-radius:12px;
+}
+
 /* Scroll más cómodo */
 body.modo-movil .panel-avanzado{
     overflow-y:auto;
@@ -650,6 +656,18 @@ body.modo-movil .middle-bar{
     border-radius:6px;
 }
 
+.panel-avanzado input[type="number"]{
+    width:100%;
+    padding:8px;
+    margin-bottom:12px;
+    background:#1f2937;
+    border:1px solid #333;
+    color:#fff;
+    border-radius:6px;
+}
+
+
+
 .panel-avanzado select{
     width:100%;
     padding:8px;
@@ -668,6 +686,61 @@ body.modo-movil .middle-bar{
 
 .link-extra-wrap input{
     flex:1;
+    min-width:0;
+}
+
+/* Botón X de links: mismo tamaño que comentarios míos */
+.link-extra-wrap .btn{
+    width:42px !important;
+    min-width:42px !important;
+    max-width:42px !important;
+    height:42px !important;
+
+    padding:0 !important;
+    border-radius:12px !important;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:20px !important;
+    line-height:1 !important;
+
+    flex:0 0 42px;
+}
+
+/* Botón X de links en móvil */
+body.modo-movil .panel-avanzado .link-extra-wrap .btn{
+    width:44px !important;
+    min-width:44px !important;
+    max-width:44px !important;
+    height:44px !important;
+
+    padding:0 !important;
+    font-size:20px !important;
+    border-radius:12px !important;
+
+    flex:0 0 44px;
+}
+
+/* Botón X de links en móvil */
+body.modo-movil .panel-avanzado .link-extra-wrap .btn{
+    width:44px !important;
+    min-width:44px !important;
+    max-width:44px !important;
+    height:44px !important;
+
+    padding:0 !important;
+    font-size:20px !important;
+    border-radius:12px !important;
+
+    flex:0 0 44px;
+}
+
+.link-extra-wrap .btn{
+    width:42px !important;
+    min-width:42px !important;
+    max-width:42px !important;
 }
 
 .btn-link-extra{
@@ -1070,6 +1143,133 @@ body.modo-movil .youtube-sub-box textarea{
     height:240px;
     font-size:16px;
 }
+/* =========================
+   COMENTARIOS MÍOS
+=========================*/
+
+.comentario-mio-wrap{
+    margin-bottom:12px;
+}
+
+.comentario-mio-actions{
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+}
+
+.comentario-mio-actions textarea{
+    flex:1;
+}
+
+/* Botón X de comentarios míos */
+.comentario-mio-actions .btn{
+    width:42px !important;
+    min-width:42px !important;
+    max-width:42px !important;
+    height:42px !important;
+
+    padding:0 !important;
+    border-radius:12px !important;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:20px !important;
+    line-height:1 !important;
+
+    flex:0 0 42px;
+}
+
+/* Botón X en móvil */
+body.modo-movil .panel-avanzado .comentario-mio-actions .btn{
+    width:44px !important;
+    min-width:44px !important;
+    max-width:44px !important;
+    height:44px !important;
+
+    padding:0 !important;
+    font-size:20px !important;
+    border-radius:12px !important;
+
+    flex:0 0 44px;
+}
+
+/* Base del cuadro */
+.panel-avanzado textarea.comentario-mio-input{
+    width:100%;
+    resize:none;
+
+    background:#1f2937;
+    border:1px solid #333;
+    color:#fff;
+    border-radius:10px;
+    padding:10px;
+    margin-bottom:12px;
+
+    line-height:20px;
+    transition:height 0.15s ease;
+}
+
+/* Cerrado: muestra 2 líneas */
+.panel-avanzado textarea.comentario-mio-input.colapsado{
+    height:62px !important;
+    min-height:62px !important;
+    max-height:62px !important;
+    overflow-y:hidden;
+}
+
+/* Editando: muestra 4 líneas y si pasa de ahí aparece scroll */
+.panel-avanzado textarea.comentario-mio-input.en-edicion{
+    height:102px !important;
+    min-height:102px !important;
+    max-height:102px !important;
+    overflow-y:auto;
+}
+
+/* Móvil cerrado */
+body.modo-movil .panel-avanzado textarea.comentario-mio-input.colapsado{
+    height:68px !important;
+    min-height:68px !important;
+    max-height:68px !important;
+    overflow-y:hidden;
+}
+
+/* Móvil editando: 4 líneas */
+body.modo-movil .panel-avanzado textarea.comentario-mio-input.en-edicion{
+    height:112px !important;
+    min-height:112px !important;
+    max-height:112px !important;
+    overflow-y:auto;
+    font-size:16px;
+    padding:12px;
+    border-radius:12px;
+    line-height:22px;
+}
+
+/* Botones de autocorrección */
+.comentarios-mios-tools{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    margin-bottom:12px;
+}
+
+.comentarios-mios-tools .btn-link-extra{
+    margin-bottom:0;
+}
+
+#btnDeshacerAutocorreccionComentariosMios:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+}
+
+body.modo-movil .comentarios-mios-tools .btn-link-extra{
+    width:100%;
+    font-size:15px;
+    padding:12px;
+    border-radius:14px;
+}
 
 </style>
 
@@ -1261,6 +1461,41 @@ body.modo-movil .youtube-sub-box textarea{
     <input type="text" id="editTituloVideo" value="Título de video:">
     <input type="text" id="editEncontrado" value="Lo encontré en:">
 
+    <h4>Comentarios míos</h4>
+
+<label>
+    <input type="checkbox" id="chkComentariosMios" checked>
+    Mostrar comentarios míos
+</label>
+
+<label>
+    <input type="checkbox" id="chkComentariosMiosNegrita" checked>
+    Poner comentarios míos en negrita
+</label>
+
+<textarea
+    id="comentarioMioPrincipal"
+    class="comentario-mio-input"
+    placeholder="Escribe aquí tu comentario mío 1..."
+></textarea>
+
+<div id="comentariosMiosExtraContainer"></div>
+
+<button type="button" id="btnAgregarComentarioMio" class="btn-link-extra">
+    ➕ Agregar otro comentario mío
+</button>
+
+<div class="comentarios-mios-tools">
+    <button type="button" id="btnAutocorregirComentariosMios" class="btn-link-extra">
+        ✨ Autocorregir comentarios míos
+    </button>
+
+    <button type="button" id="btnDeshacerAutocorreccionComentariosMios" class="btn-link-extra" disabled>
+        ↩ Deshacer autocorrección
+    </button>
+</div>
+
+
 <h4>Estado manual</h4>
 
 <select id="editEstadoManual">
@@ -1268,6 +1503,15 @@ body.modo-movil .youtube-sub-box textarea{
     <option value="emision">🟩 Emisión</option>
     <option value="finalizado">🟨 Finalizado</option>
 </select>
+
+<h4>Capítulos manuales</h4>
+
+<input
+    type="number"
+    id="editCapitulosManual"
+    placeholder="Ejemplo: 45"
+    min="0"
+>
 
 <h4>Links de lectura</h4>
 
@@ -2253,9 +2497,15 @@ function obtenerSnapshotActual(resultadoHTML){
             tituloVideo: document.getElementById("editTituloVideo").value,
             encontrado: document.getElementById("editEncontrado").value,
             estadoManual: document.getElementById("editEstadoManual")?.value || "auto",
+            capitulosManual: document.getElementById("editCapitulosManual")?.value || "",
             manhua: document.getElementById("chkManhua")?.checked || false,
             linkPrincipal: document.getElementById("editLeerAqui").value,
-            linksExtra: Array.from(document.querySelectorAll(".linkLecturaExtra")).map(input => input.value)
+            linksExtra: Array.from(document.querySelectorAll(".linkLecturaExtra")).map(input => input.value),
+
+           comentariosMiosMostrar: document.getElementById("chkComentariosMios")?.checked || false,
+           comentariosMiosNegrita: document.getElementById("chkComentariosMiosNegrita")?.checked || false,
+           comentarioMioPrincipal: document.getElementById("comentarioMioPrincipal")?.value || "",
+           comentariosMiosExtra: Array.from(document.querySelectorAll(".comentarioMioExtra")).map(textarea => textarea.value)
         }
     };
 }
@@ -2286,6 +2536,10 @@ function restaurarSnapshot(item){
         if(document.getElementById("editEstadoManual")){
             document.getElementById("editEstadoManual").value = item.panel.estadoManual || "auto";
        }
+      
+     if(document.getElementById("editCapitulosManual")){
+    document.getElementById("editCapitulosManual").value = item.panel.capitulosManual || "";
+      }
 
      if(document.getElementById("chkManhua")){
          document.getElementById("chkManhua").checked = item.panel.manhua || false;
@@ -2314,6 +2568,54 @@ function restaurarSnapshot(item){
         });
 
         actualizarBotonAgregarLink();
+        if(document.getElementById("chkComentariosMios")){
+    document.getElementById("chkComentariosMios").checked =
+        item.panel.comentariosMiosMostrar ?? true;
+}
+
+if(document.getElementById("chkComentariosMiosNegrita")){
+    document.getElementById("chkComentariosMiosNegrita").checked =
+        item.panel.comentariosMiosNegrita ?? true;
+}
+
+if(document.getElementById("comentarioMioPrincipal")){
+    document.getElementById("comentarioMioPrincipal").value =
+        item.panel.comentarioMioPrincipal || "";
+}
+
+const contenedorComentariosMios = document.getElementById("comentariosMiosExtraContainer");
+
+if(contenedorComentariosMios){
+    contenedorComentariosMios.innerHTML = "";
+
+    (item.panel.comentariosMiosExtra || []).forEach((comentario, index) => {
+        const wrap = document.createElement("div");
+        wrap.className = "comentario-mio-wrap";
+
+        wrap.innerHTML = `
+            <div class="comentario-mio-actions">
+                <textarea
+                    class="comentario-mio-input comentarioMioExtra"
+                    placeholder="Escribe aquí tu comentario mío ${index + 2}..."
+                >${escaparHTMLContenido(comentario)}</textarea>
+
+                <button
+                    type="button"
+                    class="btn"
+                    style="padding:8px 12px;height:max-content;"
+                    onclick="this.closest('.comentario-mio-wrap').remove(); actualizarBotonAgregarComentarioMio();"
+                >
+                    ✕
+                </button>
+            </div>
+        `;
+
+        contenedorComentariosMios.appendChild(wrap);
+    });
+
+    actualizarBotonAgregarComentarioMio();
+    inicializarTextareasComentariosMios();
+}
     }
 
     ultimoResultadoHTML = item.html || "";
@@ -2565,10 +2867,40 @@ function limpiar(){
 
 
     document.getElementById("editEstadoManual").value = "auto";
+    if(document.getElementById("editCapitulosManual")){
+    document.getElementById("editCapitulosManual").value = "";
+}
     document.getElementById("linksExtraContainer").innerHTML = "";
     actualizarBotonAgregarLink();
+    if(document.getElementById("comentarioMioPrincipal")){
+    document.getElementById("comentarioMioPrincipal").value = "";
 }
 
+if(document.getElementById("comentariosMiosExtraContainer")){
+    document.getElementById("comentariosMiosExtraContainer").innerHTML = "";
+}
+
+if(document.getElementById("chkComentariosMios")){
+    document.getElementById("chkComentariosMios").checked = true;
+}
+
+if(document.getElementById("chkComentariosMiosNegrita")){
+    document.getElementById("chkComentariosMiosNegrita").checked = true;
+}
+
+actualizarBotonAgregarComentarioMio();
+inicializarTextareasComentariosMios();
+
+backupAutocorreccionComentariosMios = null;
+
+const btnDeshacerAuto = document.getElementById("btnDeshacerAutocorreccionComentariosMios");
+
+if(btnDeshacerAuto){
+    btnDeshacerAuto.disabled = true;
+
+}
+
+}
 
 async function pegarDesdePortapapeles(){
     try{
@@ -2624,6 +2956,16 @@ function obtenerEstadoFinal(estadoDetectado){
     }
 
     return "emision";
+}
+
+function obtenerCapitulosFinal(capitulosDetectados){
+    const manual = document.getElementById("editCapitulosManual")?.value.trim() || "";
+
+    if(manual !== "" && !isNaN(parseInt(manual, 10))){
+        return parseInt(manual, 10);
+    }
+
+    return capitulosDetectados || 0;
 }
 
 /* ======================= */
@@ -2685,6 +3027,587 @@ function generarHTMLLectura(){
     }
 
     return html;
+}
+
+/* ======================= */
+/* COMENTARIOS MÍOS */
+/* ======================= */
+
+function escaparHTMLContenido(valor){
+    return String(valor || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function obtenerComentariosMios(){
+    let comentarios = [];
+
+    const principal = document.getElementById("comentarioMioPrincipal")?.value || "";
+
+    if(principal.trim() !== ""){
+        comentarios.push(principal);
+    }
+
+    document.querySelectorAll(".comentarioMioExtra").forEach(textarea => {
+        let valor = textarea.value || "";
+
+        if(valor.trim() !== ""){
+            comentarios.push(valor);
+        }
+    });
+
+    return comentarios.slice(0, 10);
+}
+
+function generarHTMLComentariosMios(){
+    const chkMostrar = document.getElementById("chkComentariosMios");
+
+    if(chkMostrar && !chkMostrar.checked){
+        return "";
+    }
+
+    const comentarios = obtenerComentariosMios();
+
+    if(comentarios.length === 0){
+        return "";
+    }
+
+    const negrita = document.getElementById("chkComentariosMiosNegrita")?.checked;
+
+    let html = "";
+
+    comentarios.forEach((comentario, index) => {
+        let contenido = escaparHTMLContenido(comentario).replace(/\n/g, "<br>");
+
+        if(negrita){
+            contenido = "<strong>" + contenido + "</strong>";
+        }
+
+        html += "<div>" + contenido + "</div>";
+
+        if(index < comentarios.length - 1){
+            html += "<br><div>────────────</div><br>";
+        }else{
+            html += "<br><br>";
+        }
+    });
+
+    return html;
+}
+
+function actualizarBotonAgregarComentarioMio(){
+    const total = document.querySelectorAll(".comentarioMioExtra").length + 1;
+    const btn = document.getElementById("btnAgregarComentarioMio");
+
+    if(!btn) return;
+
+    if(total >= 10){
+        btn.style.display = "none";
+    }else{
+        btn.style.display = "block";
+    }
+}
+
+let backupAutocorreccionComentariosMios = null;
+
+function obtenerTextareasComentariosMios(){
+    const principal = document.getElementById("comentarioMioPrincipal");
+
+    return [
+        principal,
+        ...document.querySelectorAll(".comentarioMioExtra")
+    ].filter(Boolean);
+}
+
+function preservarMayuscula(original, corregido){
+    if(!original) return corregido;
+
+    if(original === original.toUpperCase()){
+        return corregido.toUpperCase();
+    }
+
+    if(original[0] === original[0].toUpperCase()){
+        return corregido.charAt(0).toUpperCase() + corregido.slice(1);
+    }
+
+    return corregido;
+}
+
+function reemplazarPalabra(texto, palabra, correccion){
+    const regex = new RegExp("\\b" + palabra + "\\b", "gi");
+
+    return texto.replace(regex, coincidencia => {
+        return preservarMayuscula(coincidencia, correccion);
+    });
+}
+
+
+function reemplazarPalabra(texto, palabra, reemplazo){
+    const regex = new RegExp("\\b" + palabra + "\\b", "gi");
+
+    return texto.replace(regex, function(match){
+        // Si estaba en mayúsculas completas
+        if(match === match.toUpperCase()){
+            return reemplazo.toUpperCase();
+        }
+
+        // Si empieza en mayúscula
+        if(match[0] === match[0].toUpperCase()){
+            return reemplazo.charAt(0).toUpperCase() + reemplazo.slice(1);
+        }
+
+        return reemplazo;
+    });
+}
+
+function autocorregirTextoBasico(texto){
+    let t = String(texto || "");
+
+    /* =========================
+       LIMPIEZA BÁSICA
+    ========================= */
+
+    t = t.replace(/[ \t]+/g, " ");
+    t = t.replace(/\s+\n/g, "\n");
+    t = t.replace(/\n\s+/g, "\n");
+
+    t = t.replace(/\s+([.,;:!?¿¡])/g, "$1");
+    t = t.replace(/([.,;:!?¿¡])([^\s\n.,;:!?¿¡])/g, "$1 $2");
+
+    t = t.replace(/\.{3,}/g, "...");
+    t = t.replace(/!{3,}/g, "!!");
+    t = t.replace(/\?{3,}/g, "??");
+
+    t = t.replace(/([a-záéíóúñ])\1{2,}/gi, "$1$1");
+
+    /* =========================
+       CORRECCIONES DE PALABRAS
+    ========================= */
+
+    const correcciones = {
+        "q": "que",
+        "qe": "que",
+        "qeu": "que",
+        "ke": "que",
+        "k": "que",
+        "qndo": "cuando",
+
+        "xq": "porque",
+        "pq": "porque",
+        "porq": "porque",
+        "porqe": "porque",
+        "porqeu": "porque",
+        "porquee": "porque",
+        "proque": "porque",
+        "proqwue": "porque",
+        "xque": "porque",
+
+        "pa": "para",
+        "paar": "para",
+        "parq": "para que",
+        "aoarq": "para que",
+        "pala": "para la",
+        "pal": "para el",
+
+        "toy": "estoy",
+        "ta": "está",
+        "tas": "estás",
+        "sta": "está",
+        "stoy": "estoy",
+        "toi": "estoy",
+
+        "dnd": "donde",
+        "dnde": "donde",
+        "bn": "bien",
+        "bno": "bueno",
+        "weno": "bueno",
+        "wena": "buena",
+        "ntp": "no te preocupes",
+
+        "tambien": "también",
+        "tambn": "también",
+        "tmb": "también",
+        "tambein": "también",
+
+        "mas": "más",
+        "ams": "más",
+        "asi": "así",
+        "aqui": "aquí",
+        "ahi": "ahí",
+        "alla": "allá",
+        "aca": "acá",
+        "despues": "después",
+        "ademas": "además",
+        "quiza": "quizá",
+        "quizas": "quizás",
+        "facil": "fácil",
+        "dificil": "difícil",
+        "rapido": "rápido",
+        "ultimo": "último",
+        "ultim": "último",
+        "ultima": "última",
+        "unico": "único",
+        "unica": "única",
+
+        "publicacion": "publicación",
+        "emision": "emisión",
+        "opcion": "opción",
+        "opciones": "opciones",
+        "accion": "acción",
+        "acciones": "acciones",
+        "configuracion": "configuración",
+        "correccion": "corrección",
+        "correcciones": "correcciones",
+        "version": "versión",
+        "informacion": "información",
+        "descripcion": "descripción",
+
+        "sinopsis": "sinopsis",
+        "sipnosis": "sinopsis",
+
+        "movil": "móvil",
+        "boton": "botón",
+        "botones": "botones",
+        "capitulo": "capítulo",
+        "capitulos": "capítulos",
+        "linea": "línea",
+        "lineas": "líneas",
+        "pagina": "página",
+        "paginas": "páginas",
+        "codigo": "código",
+        "codgio": "código",
+        "cosigo": "código",
+        "archivo": "archivo",
+
+        "html": "HTML",
+        "css": "CSS",
+        "javascript": "JavaScript",
+        "youtube": "YouTube",
+        "intensedebate": "IntenseDebate",
+
+        "manhwa": "manhwa",
+        "manhwas": "manhwas",
+        "manga": "manga",
+        "mangas": "mangas",
+
+        "desaser": "deshacer",
+        "desacer": "deshacer",
+        "deshaser": "deshacer",
+
+        "peudo": "puedo",
+        "peudes": "puedes",
+        "pued": "puede",
+
+        "qiero": "quiero",
+        "queiro": "quiero",
+        "quieor": "quiero",
+        "queires": "quieres",
+        "queire": "quiere",
+        "quier": "quiere",
+
+        "escribi": "escribí",
+        "escrivir": "escribir",
+
+        "sigeuente": "siguiente",
+        "siguente": "siguiente",
+
+        "aparesca": "aparezca",
+        "apareca": "aparezca",
+        "aparese": "aparece",
+        "aprarece": "aparece",
+
+        "funcioan": "funciona",
+        "funiona": "funciona",
+        "funsiona": "funciona",
+
+        "corrre": "corre",
+        "core": "corre",
+
+        "rompio": "rompió",
+        "salio": "salió",
+
+        "falat": "falta",
+        "cambair": "cambiar",
+        "cambie": "cambié",
+        "cambialo": "cámbialo",
+
+        "agrege": "agregue",
+        "agregue": "agregué",
+        "agregale": "agrégale",
+
+        "quite": "quité",
+        "pegue": "pegué",
+
+        "pequeno": "pequeño",
+        "pequena": "pequeña",
+        "pequenas": "pequeñas",
+        "pequenos": "pequeños",
+
+        "tmaño": "tamaño",
+        "tamano": "tamaño",
+
+        "mimsmo": "mismo",
+        "msimo": "mismo",
+        "mimsma": "misma",
+
+        "coemntario": "comentario",
+        "coemntarios": "comentarios",
+        "comentairos": "comentarios",
+
+        "ortografica": "ortográfica",
+        "ortograficas": "ortográficas",
+        "autocorreccion": "autocorrección",
+
+        "deos": "dos",
+        "perte": "parte",
+
+        "hioce": "hice",
+        "hiso": "hizo",
+
+        "deberia": "debería",
+        "podria": "podría",
+        "podrias": "podrías",
+
+        "ano": "año",
+        "anos": "años",
+        "nino": "niño",
+        "nina": "niña",
+        "senor": "señor",
+        "senora": "señora",
+        "manana": "mañana"
+    };
+
+    Object.keys(correcciones).forEach(palabra => {
+        t = reemplazarPalabra(t, palabra, correcciones[palabra]);
+    });
+
+    /* =========================
+       CORRECCIONES DE FRASES
+    ========================= */
+
+    const frases = [
+        [/no corre/gi, "no corre"],
+        [/no funciona/gi, "no funciona"],
+
+        [/que hice mal/gi, "qué hice mal"],
+        [/q hice mal/gi, "qué hice mal"],
+
+        [/que hago/gi, "qué hago"],
+        [/q hago/gi, "qué hago"],
+
+        [/que quieres decir/gi, "qué quieres decir"],
+        [/q quieres decir/gi, "qué quieres decir"],
+
+        [/por que/gi, "por qué"],
+        [/por qué no/gi, "por qué no"],
+
+        [/para que/gi, "para que"],
+
+        [/aqui esta/gi, "aquí está"],
+        [/ahi esta/gi, "ahí está"],
+
+        [/esta bien/gi, "está bien"],
+        [/esta mal/gi, "está mal"],
+        [/esta roto/gi, "está roto"],
+        [/esta raro/gi, "está raro"],
+
+        [/si esta/gi, "sí está"],
+        [/si se puede/gi, "sí se puede"],
+
+        [/no se/gi, "no sé"],
+
+        [/ya lo hice/gi, "ya lo hice"],
+        [/lo hice/gi, "lo hice"],
+
+        [/me sale/gi, "me sale"],
+        [/me aparece/gi, "me aparece"],
+
+        [/modo movil/gi, "modo móvil"],
+        [/modo avanzado/gi, "modo avanzado"],
+
+        [/comentarios mios/gi, "comentarios míos"],
+        [/capitulos manuales/gi, "capítulos manuales"],
+        [/links de lectura/gi, "links de lectura"],
+        [/boton x/gi, "botón X"],
+
+        [/que no se limite/gi, "que no se limite"],
+        [/no tengo que cambiar mas nada/gi, "no tengo que cambiar más nada"],
+        [/no tengo que cambiar nada/gi, "no tengo que cambiar nada"],
+        [/esta bien ahi/gi, "está bien ahí"],
+        [/esta bien aqui/gi, "está bien aquí"]
+    ];
+
+    frases.forEach(([regex, reemplazo]) => {
+        t = t.replace(regex, reemplazo);
+    });
+
+    /* =========================
+       CAPITALIZACIÓN
+    ========================= */
+
+    t = t.replace(/(^|[.!?]\s+)([a-záéíóúñ])/g, function(_, inicio, letra){
+        return inicio + letra.toUpperCase();
+    });
+
+    t = t.replace(/(\n)([a-záéíóúñ])/g, function(_, salto, letra){
+        return salto + letra.toUpperCase();
+    });
+
+    return t.trim();
+}
+
+
+function autocorregirComentariosMios(){
+    const textareas = obtenerTextareasComentariosMios();
+
+    if(textareas.length === 0){
+        return;
+    }
+
+    backupAutocorreccionComentariosMios = textareas.map(textarea => textarea.value);
+
+    textareas.forEach(textarea => {
+        textarea.value = autocorregirTextoBasico(textarea.value);
+        colapsarTextareaComentarioMio(textarea);
+    });
+
+    const btnDeshacer = document.getElementById("btnDeshacerAutocorreccionComentariosMios");
+
+    if(btnDeshacer){
+        btnDeshacer.disabled = false;
+    }
+
+    alert("Comentarios autocorregidos.");
+}
+
+function deshacerAutocorreccionComentariosMios(){
+    if(!backupAutocorreccionComentariosMios){
+        alert("No hay autocorrección para deshacer.");
+        return;
+    }
+
+    const textareas = obtenerTextareasComentariosMios();
+
+    textareas.forEach((textarea, index) => {
+        textarea.value = backupAutocorreccionComentariosMios[index] || "";
+        colapsarTextareaComentarioMio(textarea);
+    });
+
+    backupAutocorreccionComentariosMios = null;
+
+    const btnDeshacer = document.getElementById("btnDeshacerAutocorreccionComentariosMios");
+
+    if(btnDeshacer){
+        btnDeshacer.disabled = true;
+    }
+
+    alert("Autocorrección deshecha.");
+}
+
+
+function ajustarTextareaComentarioMio(textarea){
+    if(!textarea) return;
+
+    textarea.classList.remove("colapsado");
+    textarea.classList.add("en-edicion");
+
+    // Al escribir o hacer clic, se queda en 4 líneas.
+    // Si el texto pasa de 4 líneas, aparece scroll.
+    textarea.style.height = "";
+    textarea.style.overflowY = "auto";
+}
+
+function colapsarTextareaComentarioMio(textarea){
+    if(!textarea) return;
+
+    textarea.classList.remove("en-edicion");
+    textarea.classList.add("colapsado");
+
+    // Al salir del cuadro, vuelve a 2 líneas.
+    textarea.style.height = "";
+    textarea.style.overflowY = "hidden";
+}
+
+function prepararTextareaComentarioMio(textarea){
+    if(!textarea) return;
+
+    if(textarea.dataset.comentarioPreparado === "true"){
+        return;
+    }
+
+    textarea.dataset.comentarioPreparado = "true";
+
+    textarea.addEventListener("input", function(){
+        ajustarTextareaComentarioMio(this);
+    });
+
+    textarea.addEventListener("focus", function(){
+        ajustarTextareaComentarioMio(this);
+    });
+
+    textarea.addEventListener("blur", function(){
+        colapsarTextareaComentarioMio(this);
+    });
+
+    colapsarTextareaComentarioMio(textarea);
+}
+
+function inicializarTextareasComentariosMios(){
+    document
+        .querySelectorAll(".comentario-mio-input")
+        .forEach(textarea => {
+            prepararTextareaComentarioMio(textarea);
+        });
+}
+
+function agregarComentarioMio(){
+    const contenedor = document.getElementById("comentariosMiosExtraContainer");
+
+    if(!contenedor) return;
+
+    const totalActual = document.querySelectorAll(".comentarioMioExtra").length + 1;
+
+    if(totalActual >= 10){
+        alert("Máximo 10 comentarios míos.");
+        return;
+    }
+
+    const numero = totalActual + 1;
+
+    const wrap = document.createElement("div");
+    wrap.className = "comentario-mio-wrap";
+
+    wrap.innerHTML = `
+        <div class="comentario-mio-actions">
+            <textarea
+                class="comentario-mio-input comentarioMioExtra"
+                placeholder="Escribe aquí tu comentario mío ${numero}..."
+            ></textarea>
+
+            <button
+                type="button"
+                class="btn"
+                style="padding:8px 12px;height:max-content;"
+                onclick="this.closest('.comentario-mio-wrap').remove(); actualizarBotonAgregarComentarioMio();"
+            >
+                ✕
+            </button>
+        </div>
+    `;
+
+    contenedor.appendChild(wrap);
+
+const nuevoTextarea = wrap.querySelector(".comentarioMioExtra");
+
+prepararTextareaComentarioMio(nuevoTextarea);
+
+if(nuevoTextarea){
+    nuevoTextarea.focus();
+}
+
+actualizarBotonAgregarComentarioMio();
+
 }
 
 function actualizarBotonAgregarLink(){
@@ -2785,6 +3708,8 @@ if(matchTotalCaps){
         l.toLowerCase().includes("capitulo")
     ).length;
 }
+
+let capitulosFinal = obtenerCapitulosFinal(capitulos);
 
 /* ======================= */
 /* EXTRAER COMENTARIOS */
@@ -2949,6 +3874,8 @@ if(document.getElementById("chkTitulo").checked){
 resultado += "<div>(--)</div><br>";
 resultado += "<div>(Manhwa)</div><br>";
 
+resultado += generarHTMLComentariosMios();
+
 if(document.getElementById("chkEncontrado").checked){
     resultado += "<div>" + document.getElementById("editEncontrado").value + "</div><br>";
 }
@@ -3009,12 +3936,12 @@ if(estadoFinal === "finalizado"){
         resumenFinal += parejaFinal;
     }
 
-    resumenFinal += " ( " + capitulos + " capitulos )";
+    resumenFinal += " ( " + capitulosFinal + " capitulos )";
 
     resultado += "<div><strong>" + resumenFinal + "</strong></div><br>";
 
 }else{
-    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+    resultado += "<div><strong>🟩 Emisión ( " + capitulosFinal + " capitulos )</strong></div><br>";
 }
 
 resultado += "<div><strong>❕No tiene NTR</strong></div>";
@@ -3077,6 +4004,8 @@ if(matchTotalCaps){
         l.toLowerCase().includes("capitulo")
     ).length;
 }
+
+let capitulosFinal = obtenerCapitulosFinal(capitulos);
 
 /* ======================= */
 /* EXTRAER COMENTARIOS */
@@ -3185,6 +4114,9 @@ let resultado = "";
 if(document.getElementById("chkTitulo").checked){
     resultado += "<div style='font-size:27px;font-weight:bold;'>" + tituloFinal + "</div><br>";
 }
+
+resultado += generarHTMLComentariosMios();
+
 if(document.getElementById("chkSinopsis").checked){
     resultado += "<div><strong>" + document.getElementById("editSinopsis").value + "</strong></div>";
     resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
@@ -3198,9 +4130,9 @@ resultado += comentariosFormateados.join("<br><br>") + "<br>";
 let estadoFinal = obtenerEstadoFinal(estado);
 if(estadoFinal === "finalizado"){
 
-    resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
+    resultado += "<div><strong>🟨 Finalizado ( " + capitulosFinal + " capitulos )</strong></div><br>";
 }else{
-    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+    resultado += "<div><strong>🟩 Emisión ( " + capitulosFinal + " capitulos )</strong></div><br>";
 }
 
 if(haySpoiler){
@@ -3277,6 +4209,7 @@ if(matchTotalCaps){
     ).length;
 }
 
+let capitulosFinal = obtenerCapitulosFinal(capitulos);
 
 /* ======================= */
 /* EXTRAER COMENTARIOS */
@@ -3383,6 +4316,8 @@ if(document.getElementById("chkManhua")?.checked && modoActual === "manga"){
     resultado += "<div>(Es un Manhua)</div><br>";
 }
 
+resultado += generarHTMLComentariosMios();
+
 // VIDEO
 /* ===== TÍTULO DE VIDEO (EDITABLE) ===== */
 let tituloVideo = document.getElementById("editTituloVideo").value.trim()
@@ -3416,9 +4351,9 @@ resultado += comentariosFormateados.join("<br><br>") + "<br>";
 
 let estadoFinal = obtenerEstadoFinal(estado);
 if(estadoFinal === "finalizado"){
-    resultado += "<div><strong>🟨 Finalizado ( " + capitulos + " capitulos )</strong></div><br>";
+    resultado += "<div><strong>🟨 Finalizado ( " + capitulosFinal + " capitulos )</strong></div><br>";
 }else{
-    resultado += "<div><strong>🟩 Emisión ( " + capitulos + " capitulos )</strong></div><br>";
+    resultado += "<div><strong>🟩 Emisión ( " + capitulosFinal + " capitulos )</strong></div><br>";
 }
 
 resultado += "<div>______________________________________</div>";
@@ -3588,6 +4523,8 @@ if(matchEpisodios){
 if(posiblesCapitulos.length > 0){
     totalCapitulos = Math.max(...posiblesCapitulos);
 }
+
+let totalCapitulosFinal = obtenerCapitulosFinal(totalCapitulos);
 
 /* ----- DECIDIR ESTADO FINAL (PRIORIDAD CORRECTA) ----- */
 if(detectaEnEmision){
@@ -3798,6 +4735,8 @@ if (modoActual === "normal") {
         "</div><br>";
     }
 
+    resultado += generarHTMLComentariosMios();
+
     if (document.getElementById("chkSinopsis").checked && sinopsis !== "") {
         resultado += "<div><strong>" 
             + document.getElementById("editSinopsis").value + 
@@ -3816,12 +4755,12 @@ if (modoActual === "normal") {
     let estadoFinal = obtenerEstadoFinal(estado);
     if (estadoFinal === "finalizado") {
         resultado += "<div><strong>🟨 Finalizado ( "
-            + totalCapitulos +
-        " capitulos )</strong></div><br>";
+    + totalCapitulosFinal +
+" capitulos )</strong></div><br>";
     } else {
         resultado += "<div><strong>🟩 Emisión ( "
-            + totalCapitulos +
-        " capitulos )</strong></div><br>";
+    + totalCapitulosFinal +
+" capitulos )</strong></div><br>";
     }
 
     resultado += "<div><strong>❕No tiene NTR</strong></div>";
@@ -3849,6 +4788,8 @@ if(document.getElementById("chkManhua")?.checked && modoActual === "manga"){
     resultado += "<div>(Es un Manhua)</div><br>";
 }
 
+resultado += generarHTMLComentariosMios();
+
 /* ===== VIDEO ===== */
 let tituloVideo = document.getElementById("editTituloVideo").value.trim()
     || "Título de video:";
@@ -3875,11 +4816,11 @@ if (document.getElementById("chkSinopsis").checked && sinopsis !== "") {
 /* ===== ESTADO + CAPÍTULOS (AL FINAL) ===== */
 if (estado && estado.toLowerCase() === "finalizado") {
     resultado += "<div><strong>🟨 Finalizado ( "
-        + totalCapitulos +
+        + totalCapitulosFinal +
     " capítulos )</strong></div><br>";
 } else {
     resultado += "<div><strong>🟩 Emisión ( "
-        + totalCapitulos +
+        + totalCapitulosFinal +
     " capítulos )</strong></div><br>";
 }
 
@@ -4239,6 +5180,25 @@ if(btnAgregarLink){
     btnAgregarLink.onclick = agregarLinkLectura;
 }
 
+const btnAgregarComentarioMio = document.getElementById("btnAgregarComentarioMio");
+
+if(btnAgregarComentarioMio){
+    btnAgregarComentarioMio.onclick = agregarComentarioMio;
+}
+
+const btnAutocorregirComentariosMios = document.getElementById("btnAutocorregirComentariosMios");
+const btnDeshacerAutocorreccionComentariosMios = document.getElementById("btnDeshacerAutocorreccionComentariosMios");
+
+if(btnAutocorregirComentariosMios){
+    btnAutocorregirComentariosMios.onclick = autocorregirComentariosMios;
+}
+
+if(btnDeshacerAutocorreccionComentariosMios){
+    btnDeshacerAutocorreccionComentariosMios.onclick = deshacerAutocorreccionComentariosMios;
+}
+
+actualizarBotonAgregarComentarioMio();
+inicializarTextareasComentariosMios();
 // Cargar configuración visual guardada
 cargarConfiguracionVisual();
 
