@@ -1442,11 +1442,16 @@ body.modo-movil .comentarios-mios-tools .btn-link-extra{
     <label><input type="checkbox" id="chkSinopsis" checked> Mostrar Sinopsis</label>
     <label><input type="checkbox" id="chkCanal" checked> Mostrar Canal</label>
     <label><input type="checkbox" id="chkVideo" checked> Mostrar Video</label>
-
     
     <div id="opcionManhuaWrap" style="display:none;">
        <label><input type="checkbox" id="chkManhua"> Manhua</label>
     </div>
+
+    <label id="labelTituloVideo" style="display:none;">
+    <input type="checkbox" id="chkTituloVideo" checked>
+    Mostrar Título de video
+</label>
+
 
     <label><input type="checkbox" id="chkEncontrado" checked> Mostrar "Lo encontré en"</label>
     <label><input type="checkbox" id="chkDecoracion" checked> Mostrar decoración superior</label>
@@ -1805,15 +1810,34 @@ function actualizarOpcionManhua(){
     const wrap = document.getElementById("opcionManhuaWrap");
     const chk = document.getElementById("chkManhua");
 
+    const labelTituloVideo = document.getElementById("labelTituloVideo");
+    const chkTituloVideo = document.getElementById("chkTituloVideo");
+
     if(!wrap) return;
 
     if(modoActual === "manga"){
         wrap.style.display = "block";
+
+        // ✅ Mostrar opción "Título de video"
+        if(labelTituloVideo){
+            labelTituloVideo.style.display = "block";
+        }
+
     }else{
         wrap.style.display = "none";
 
         if(chk){
             chk.checked = false;
+        }
+
+        // ✅ Ocultar opción "Título de video"
+        if(labelTituloVideo){
+            labelTituloVideo.style.display = "none";
+        }
+
+        // ✅ Resetear checkbox para evitar bugs
+        if(chkTituloVideo){
+            chkTituloVideo.checked = true;
         }
     }
 }
@@ -3084,12 +3108,10 @@ function generarHTMLComentariosMios(){
             contenido = "<strong>" + contenido + "</strong>";
         }
 
-        html += "<div>" + contenido + "</div>";
+        html += contenido;
 
         if(index < comentarios.length - 1){
-           html += "<br>";
-        }else{
-          html += "<br><br>";
+    html += "<br><br>";
         }
     });
 
@@ -3864,32 +3886,57 @@ else{
 
 let resultado = "";
 
-if(document.getElementById("chkDecoracion").checked){
-    resultado += "<div>🟪🟪🟪🟪</div><br>";
+/* ===== DECORACIÓN ===== */
+if(document.getElementById("chkDecoracion")?.checked){
+    resultado += "🟪🟪🟪🟪<br><br>";
 }
 
-if(document.getElementById("chkTitulo").checked){
-    resultado += "<div style='font-size:27px;font-weight:bold;'>" + tituloFinal + "</div><br>";
-}
-resultado += "<div>(--)</div><br>";
-resultado += "<div>(Manhwa)</div><br>";
-
-resultado += generarHTMLComentariosMios();
-
-if(document.getElementById("chkEncontrado").checked){
-    resultado += "<div>" + document.getElementById("editEncontrado").value + "</div><br>";
+/* ===== TÍTULO ===== */
+if(document.getElementById("chkTitulo")?.checked){
+    resultado += "<span style='font-size:27px;font-weight:bold;'>" 
+              + tituloFinal +
+              "</span><br><br><br>";
 }
 
-if(document.getElementById("chkSinopsis").checked){
+/* ===== CABECERA ===== */
+resultado += "(--)<br><br>";
+
+let tipoObra = document.getElementById("editTipoObra")?.value || "Manhwa";
+let tipoEnNegrita = document.getElementById("chkTipoNegrita")?.checked;
+
+let tipoHTML = tipoEnNegrita
+    ? "<strong>(" + tipoObra + ")</strong>"
+    : "(" + tipoObra + ")";
+
+resultado += tipoHTML + "<br>";
+
+let comentariosMiosHTML = generarHTMLComentariosMios().trim();
+
+if(comentariosMiosHTML !== ""){
+    resultado += "<br>" + comentariosMiosHTML + "<br><br>";
+}else{
+    resultado += "<br>";
+}
+
+/* ===== ENCONTRADO ===== */
+if(document.getElementById("chkEncontrado")?.checked){
+    resultado += document.getElementById("editEncontrado").value + "<br><br>";
+}
+
+/* ===== SINOPSIS ===== */
+if(document.getElementById("chkSinopsis")?.checked){
     resultado += "<div><strong>" + document.getElementById("editSinopsis").value + "</strong></div>";
     resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
 }
 
+/* ===== LECTURA ===== */
 resultado += generarHTMLLectura();
 
+/* ===== COMENTARIOS ===== */
 resultado += "<strong>Comentarios:</strong><br><br>";
 resultado += comentariosFormateados.join("<br><br>") + "<br>";
 
+/* ===== ESTADO ===== */
 let estadoFinal = obtenerEstadoFinal(estado);
 
 if(estadoFinal === "finalizado"){
@@ -3924,17 +3971,9 @@ if(estadoFinal === "finalizado"){
         parejaFinal = " con la FL";
     }
 
-    if(noHarem){
-        resumenFinal += ", aunque no termina en harem";
-    }
-
-    if(finalFeliz){
-        resumenFinal += ", termina en un final feliz para el prota";
-    }
-
-    if(parejaFinal !== ""){
-        resumenFinal += parejaFinal;
-    }
+    if(noHarem) resumenFinal += ", aunque no termina en harem";
+    if(finalFeliz) resumenFinal += ", termina en un final feliz para el prota";
+    if(parejaFinal !== "") resumenFinal += parejaFinal;
 
     resumenFinal += " ( " + capitulosFinal + " capitulos )";
 
@@ -3944,8 +3983,9 @@ if(estadoFinal === "finalizado"){
     resultado += "<div><strong>🟩 Emisión ( " + capitulosFinal + " capitulos )</strong></div><br>";
 }
 
+/* ===== NTR ===== */
 resultado += "<div><strong>❕No tiene NTR</strong></div>";
-resultado += "<div>" + resumenNTR + "</div><br>";
+resultado += "<div>" + resumenNTR + "</div>";
 resultado += "<div>______________________________________</div>";
 
 ultimoResultadoHTML = resultado;
@@ -4115,7 +4155,11 @@ if(document.getElementById("chkTitulo").checked){
     resultado += "<div style='font-size:27px;font-weight:bold;'>" + tituloFinal + "</div><br>";
 }
 
-resultado += generarHTMLComentariosMios();
+let comentariosMiosHTML = generarHTMLComentariosMios().trim();
+
+if(comentariosMiosHTML !== ""){
+    resultado += comentariosMiosHTML + "<br><br>";
+}
 
 if(document.getElementById("chkSinopsis").checked){
     resultado += "<div><strong>" + document.getElementById("editSinopsis").value + "</strong></div>";
@@ -4307,36 +4351,61 @@ if(document.getElementById("chkTitulo").checked){
 
     let tituloFinal = obtenerTitulo();
 
-    resultado += "<div style='font-size:27px;font-weight:bold;'>" 
-        + tituloFinal + 
-    "</div><br>";
+    resultado += "<span style='font-size:27px;font-weight:bold;'>" 
+    + tituloFinal + 
+"</span><br>";
 }
 
 if(document.getElementById("chkManhua")?.checked && modoActual === "manga"){
     resultado += "<div>(Es un Manhua)</div><br>";
 }
 
-resultado += generarHTMLComentariosMios();
+let comentariosMiosHTML = generarHTMLComentariosMios().trim();
+
+if(comentariosMiosHTML !== ""){
+
+    // 2 líneas reales después del título
+    resultado += "<br><br>";
+
+    // Quitamos cualquier <br> al inicio o final por seguridad
+    comentariosMiosHTML = comentariosMiosHTML
+        .replace(/^(<br>)+/, "")
+        .replace(/(<br>)+$/, "");
+
+    resultado += comentariosMiosHTML;
+
+    // 2 líneas reales antes de "Título de video"
+    resultado += "<br><br><br>";
+
+}else{
+
+    // Sin comentarios → 3 líneas reales
+    resultado += "<br><br><br>";
+}
 
 // VIDEO
 /* ===== TÍTULO DE VIDEO (EDITABLE) ===== */
 let tituloVideo = document.getElementById("editTituloVideo").value.trim()
     || "Título de video:";
 
-resultado += "<div><strong>" + tituloVideo + "</strong></div><br>";
 
-/* ===== ETIQUETA VIDEO ===== */
+// TÍTULO DE VIDEO
+if(document.getElementById("chkTituloVideo").checked){
+    resultado += "<strong>" + tituloVideo + "</strong><br><br>";
+}
+
+// VIDEO
 if (document.getElementById("chkVideo").checked) {
 
     let etiquetaVideo = document.getElementById("editVideo").value.trim()
         || "Video:";
 
-    resultado += "<div><strong>" + etiquetaVideo + "</strong></div><br>";
+    resultado += "<strong>" + etiquetaVideo + "</strong><br><br>";
 }
 
 // CANAL
 if(document.getElementById("chkCanal").checked){
-    resultado += "<div><strong>" + document.getElementById("editCanal").value + "</strong> </div><br>";
+    resultado += "<strong>" + document.getElementById("editCanal").value + "</strong><br><br>";
 }
 
 resultado += generarHTMLLectura();
@@ -4779,57 +4848,103 @@ resultado = "";
 
 /* ===== TÍTULO ===== */
 if (document.getElementById("chkTitulo").checked) {
-    resultado += "<div style='font-size:27px;font-weight:bold;'>"
+    resultado += "<span style='font-size:27px;font-weight:bold;'>"
         + titulo +
-    "</div><br>";
+    "</span><br>";
 }
 
+/* ===== MANHUA ===== */
 if(document.getElementById("chkManhua")?.checked && modoActual === "manga"){
-    resultado += "<div>(Es un Manhua)</div><br>";
+    resultado += "<br>(Es un Manhua)<br>";
 }
 
-resultado += generarHTMLComentariosMios();
+/* ===== COMENTARIOS (ESPACIADO INTELIGENTE) ===== */
+let comentariosMiosHTML = generarHTMLComentariosMios().trim();
 
-/* ===== VIDEO ===== */
+if(comentariosMiosHTML !== ""){
+
+    // 2 líneas después del título
+    resultado += "<br><br>";
+
+    comentariosMiosHTML = comentariosMiosHTML
+        .replace(/^(<br>)+/, "")
+        .replace(/(<br>)+$/, "");
+
+    resultado += comentariosMiosHTML;
+
+    // 2 líneas antes de "Título de video"
+    resultado += "<br><br><br>";
+
+}else{
+
+    // Sin comentarios → 3 líneas reales
+    resultado += "<br><br><br>";
+}
+
+/* ===== BLOQUE VIDEO ===== */
 let tituloVideo = document.getElementById("editTituloVideo").value.trim()
     || "Título de video:";
-resultado += "<div><strong>" + tituloVideo + "</strong></div><br>";
 
-/* ===== CANAL ===== */
-if (document.getElementById("chkCanal").checked) {
-    resultado += "<div><strong>"
-        + document.getElementById("editCanal").value +
-    "</strong></div><br>";
+let bloquesVideo = [];
+
+// Título de video (solo si está activado)
+if(document.getElementById("chkTituloVideo").checked){
+    bloquesVideo.push("<strong>" + tituloVideo + "</strong>");
 }
 
+// Video (solo si está activado)
+if (document.getElementById("chkVideo").checked) {
+
+    let etiquetaVideo = document.getElementById("editVideo")?.value.trim()
+        || "Video:";
+
+    bloquesVideo.push("<strong>" + etiquetaVideo + "</strong>");
+}
+
+// Canal (solo si está activado)
+if (document.getElementById("chkCanal").checked) {
+
+    bloquesVideo.push(
+        "<strong>" + document.getElementById("editCanal").value + "</strong>"
+    );
+}
+
+// Unir con separación PERFECTA
+resultado += bloquesVideo.join("<br><br>") + "<br><br>";
+
+
 /* ===== LEER AQUÍ ===== */
-resultado += generarHTMLLectura();
+resultado += generarHTMLLectura(); 
+// ESTA FUNCIÓN YA DEBE TERMINAR EN <br><br>
 
 /* ===== SINOPSIS ===== */
 if (document.getElementById("chkSinopsis").checked && sinopsis !== "") {
-    resultado += "<div><strong>"
+
+    resultado += "<strong>"
         + document.getElementById("editSinopsis").value +
-    "</strong></div>";
-    resultado += "<div>" + sinopsis.replace(/\n/g, "<br>") + "</div><br>";
+    "</strong><br>";
+
+    resultado += sinopsis.replace(/\n/g, "<br>") + "<br><br>";
 }
 
-/* ===== ESTADO + CAPÍTULOS (AL FINAL) ===== */
+/* ===== COMENTARIOS (TÍTULO) ===== */
+resultado += "<strong>Comentarios:</strong><br><br><br>";
+
+/* ===== ESTADO ===== */
 if (estado && estado.toLowerCase() === "finalizado") {
-    resultado += "<div><strong>🟨 Finalizado ( "
+    resultado += "<strong>🟨 Finalizado ( "
         + totalCapitulosFinal +
-    " capítulos )</strong></div><br>";
+    " capítulos )</strong><br>";
 } else {
-    resultado += "<div><strong>🟩 Emisión ( "
+    resultado += "<strong>🟩 Emisión ( "
         + totalCapitulosFinal +
-    " capítulos )</strong></div><br>";
+    " capítulos )</strong><br>";
 }
 
 /* ===== FINAL ===== */
-resultado += "<div>______________________________________</div>";
+resultado += "______________________________________";
 
-document.getElementById("salida").className =
-    (modoActual === "normal") ? "salida-normal" : "salida-manga";
-
+document.getElementById("salida").className = "salida-manga";
 ultimoResultadoHTML = resultado;
 document.getElementById("salida").innerHTML = resultado;
 
@@ -5122,10 +5237,12 @@ let comentariosFormateados = comentarios.map(c =>
     "_".repeat(c.nivel) + c.texto
 );
 
-/* 👇 SOLO ESTO 👇 */
-document.getElementById("salida").innerHTML =
+let htmlFinal =
     comentariosFormateados.join("<br><br>");
 
+document.getElementById("salida").innerHTML = htmlFinal;
+
+ultimoResultadoHTML = htmlFinal;
 }
 
 
